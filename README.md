@@ -8,7 +8,7 @@ This tool converts the statements from brokers into a format compatible with the
 ## Install
 
 ```bash
-go install git.naterciomoniz.net/applications/broker2anexoj
+go install git.naterciomoniz.net/applications/broker2anexoj@latest
 ```
 
 ## Usage
