@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"math/big"
 	"os"
 	"strings"
 )
@@ -24,11 +25,11 @@ func run() error {
 		return fmt.Errorf("open statement: %w", err)
 	}
 
-	r := csv.NewReader(f)
+	r := NewRecordReader(f)
 
 	assets := make(map[string]*list.List)
 	for {
-		record, err := r.Read()
+		record, err := r.ReadRecord()
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				break
@@ -36,17 +37,17 @@ func run() error {
 			return fmt.Errorf("read statement record: %w", err)
 		}
 
-		switch strings.ToLower(record[0]) {
-		case "market buy":
-			lst, ok := assets[record[2]]
+		switch record.Direction() {
+		case DirectionBuy:
+			lst, ok := assets[record.Symbol()]
 			if !ok {
 				lst = list.New()
-				assets[record[2]] = lst
+				assets[record.Symbol()] = lst
 			}
-			lst.PushBack(record[12])
+			lst.PushBack(record)
 
-		case "market sell":
-			lst, ok := assets[record[2]]
+		case DirectionSell:
+			lst, ok := assets[record.Symbol()]
 			if !ok {
 				return ErrSellWithoutBuy
 			}
@@ -56,13 +57,8 @@ func run() error {
 				return ErrSellWithoutBuy
 			}
 
-			slog.Info("Realised PnL", slog.Any("record", record))
-
-		case "action", "stock split open", "stock split close":
-			// ignored
-
 		default:
-			return fmt.Errorf("unhandled record: %s", record[0])
+			return fmt.Errorf("unknown direction: %s", record.Direction())
 		}
 
 	}
@@ -73,3 +69,100 @@ func run() error {
 }
 
 var ErrSellWithoutBuy = fmt.Errorf("found sell without bought volume")
+
+type Record struct {
+	symbol    string
+	direction Direction
+	quantity  *big.Float
+	price     *big.Float
+}
+
+func (r Record) Symbol() string {
+	return r.symbol
+}
+
+func (r Record) Direction() Direction {
+	return r.direction
+}
+
+func (r Record) Quantity() *big.Float {
+	return r.quantity
+}
+
+func (r Record) Price() *big.Float {
+	return r.price
+}
+
+type RecordReader struct {
+	reader *csv.Reader
+}
+
+func NewRecordReader(r io.Reader) *RecordReader {
+	return &RecordReader{
+		reader: csv.NewReader(r),
+	}
+}
+
+func (rr RecordReader) ReadRecord() (Record, error) {
+	for {
+		raw, err := rr.reader.Read()
+		if err != nil {
+			return Record{}, fmt.Errorf("read record: %w", err)
+		}
+
+		var dir Direction
+		switch strings.ToLower(raw[0]) {
+		case "market buy":
+			dir = DirectionBuy
+		case "market sell":
+			dir = DirectionSell
+		case "action", "stock split open", "stock split close":
+			continue
+		default:
+			return Record{}, fmt.Errorf("unhandled record: %s", raw[0])
+		}
+		qant, _, err := big.ParseFloat(raw[6], 10, 20, big.ToZero)
+		if err != nil {
+			return Record{}, fmt.Errorf("parse quantity: %w", err)
+		}
+
+		price, _, err := big.ParseFloat(raw[7], 10, 20, big.ToZero)
+		if err != nil {
+			return Record{}, fmt.Errorf("parse price: %w", err)
+		}
+
+		return Record{
+			symbol:    raw[2],
+			direction: dir,
+			quantity:  qant,
+			price:     price,
+		}, nil
+	}
+}
+
+type Direction uint
+
+const (
+	DirectionUnknown Direction = 0
+	DirectionBuy               = 1
+	DirectionSell              = 2
+)
+
+func (d Direction) String() string {
+	switch d {
+	case 1:
+		return "buy"
+	case 2:
+		return "sell"
+	default:
+		return "unknown"
+	}
+}
+
+func (d Direction) IsBuy() bool {
+	return d == DirectionBuy
+}
+
+func (d Direction) IsSell() bool {
+	return d == DirectionSell
+}
