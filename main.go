@@ -2,14 +2,15 @@ package main
 
 import (
 	"container/list"
-	"encoding/csv"
 	"errors"
 	"fmt"
 	"io"
 	"log/slog"
 	"math/big"
 	"os"
-	"strings"
+
+	"git.naterciomoniz.net/applications/broker2anexoj/internal"
+	"git.naterciomoniz.net/applications/broker2anexoj/internal/trading212"
 )
 
 func main() {
@@ -25,7 +26,7 @@ func run() error {
 		return fmt.Errorf("open statement: %w", err)
 	}
 
-	r := NewRecordReader(f)
+	r := trading212.NewRecordReader(f)
 
 	assets := make(map[string]*list.List)
 	for {
@@ -37,8 +38,8 @@ func run() error {
 			return fmt.Errorf("read statement record: %w", err)
 		}
 
-		switch record.Direction() {
-		case DirectionBuy:
+		switch record.Side() {
+		case internal.SideBuy:
 			lst, ok := assets[record.Symbol()]
 			if !ok {
 				lst = list.New()
@@ -46,7 +47,7 @@ func run() error {
 			}
 			lst.PushBack(record)
 
-		case DirectionSell:
+		case internal.SideSell:
 			lst, ok := assets[record.Symbol()]
 			if !ok {
 				return ErrSellWithoutBuy
@@ -61,7 +62,7 @@ func run() error {
 					return ErrSellWithoutBuy
 				}
 
-				next, ok := front.Value.(Record)
+				next, ok := front.Value.(internal.Record)
 				if !ok {
 					return fmt.Errorf("unexpected record type: %T", front)
 				}
@@ -86,7 +87,7 @@ func run() error {
 			}
 
 		default:
-			return fmt.Errorf("unknown direction: %s", record.Direction())
+			return fmt.Errorf("unknown side: %s", record.Side())
 		}
 	}
 
@@ -96,100 +97,3 @@ func run() error {
 }
 
 var ErrSellWithoutBuy = fmt.Errorf("found sell without bought volume")
-
-type Record struct {
-	symbol    string
-	direction Direction
-	quantity  *big.Float
-	price     *big.Float
-}
-
-func (r Record) Symbol() string {
-	return r.symbol
-}
-
-func (r Record) Direction() Direction {
-	return r.direction
-}
-
-func (r Record) Quantity() *big.Float {
-	return r.quantity
-}
-
-func (r Record) Price() *big.Float {
-	return r.price
-}
-
-type RecordReader struct {
-	reader *csv.Reader
-}
-
-func NewRecordReader(r io.Reader) *RecordReader {
-	return &RecordReader{
-		reader: csv.NewReader(r),
-	}
-}
-
-func (rr RecordReader) ReadRecord() (Record, error) {
-	for {
-		raw, err := rr.reader.Read()
-		if err != nil {
-			return Record{}, fmt.Errorf("read record: %w", err)
-		}
-
-		var dir Direction
-		switch strings.ToLower(raw[0]) {
-		case "market buy":
-			dir = DirectionBuy
-		case "market sell":
-			dir = DirectionSell
-		case "action", "stock split open", "stock split close":
-			continue
-		default:
-			return Record{}, fmt.Errorf("unhandled record: %s", raw[0])
-		}
-		qant, _, err := big.ParseFloat(raw[6], 10, 20, big.ToZero)
-		if err != nil {
-			return Record{}, fmt.Errorf("parse quantity: %w", err)
-		}
-
-		price, _, err := big.ParseFloat(raw[7], 10, 20, big.ToZero)
-		if err != nil {
-			return Record{}, fmt.Errorf("parse price: %w", err)
-		}
-
-		return Record{
-			symbol:    raw[2],
-			direction: dir,
-			quantity:  qant,
-			price:     price,
-		}, nil
-	}
-}
-
-type Direction uint
-
-const (
-	DirectionUnknown Direction = 0
-	DirectionBuy               = 1
-	DirectionSell              = 2
-)
-
-func (d Direction) String() string {
-	switch d {
-	case 1:
-		return "buy"
-	case 2:
-		return "sell"
-	default:
-		return "unknown"
-	}
-}
-
-func (d Direction) IsBuy() bool {
-	return d == DirectionBuy
-}
-
-func (d Direction) IsSell() bool {
-	return d == DirectionSell
-}
