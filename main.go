@@ -52,15 +52,42 @@ func run() error {
 				return ErrSellWithoutBuy
 			}
 
-			first := lst.Front()
-			if first == nil {
-				return ErrSellWithoutBuy
+			unmatchedQty := new(big.Float).Copy(record.Quantity())
+			zero := new(big.Float)
+
+			for unmatchedQty.Cmp(zero) > 0 {
+				front := lst.Front()
+				if front == nil {
+					return ErrSellWithoutBuy
+				}
+
+				next, ok := front.Value.(Record)
+				if !ok {
+					return fmt.Errorf("unexpected record type: %T", front)
+				}
+
+				var matchedQty *big.Float
+				if next.Quantity().Cmp(unmatchedQty) > 0 {
+					matchedQty = unmatchedQty
+					next.Quantity().Sub(next.Quantity(), unmatchedQty)
+				} else {
+					matchedQty = next.Quantity()
+					lst.Remove(front)
+				}
+
+				unmatchedQty.Sub(unmatchedQty, matchedQty)
+
+				sellValue := new(big.Float).Mul(matchedQty, record.Price())
+				buyValue := new(big.Float).Mul(matchedQty, next.Price())
+				realisedPnL := new(big.Float).Sub(sellValue, buyValue)
+				slog.Info("Realised PnL",
+					slog.Any("Symbol", record.Symbol()),
+					slog.Any("PnL", realisedPnL))
 			}
 
 		default:
 			return fmt.Errorf("unknown direction: %s", record.Direction())
 		}
-
 	}
 
 	slog.Info("Finish processing statement", slog.Any("assets_count", len(assets)))
