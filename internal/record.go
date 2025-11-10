@@ -9,7 +9,7 @@ type Record interface {
 	Symbol() string
 	Price() *big.Float
 	Quantity() *big.Float
-	Direction() Direction
+	Side() Side
 	Timestamp() time.Time
 }
 

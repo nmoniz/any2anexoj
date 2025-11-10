@@ -28,7 +28,7 @@ func TestRecordReader_ReadRecord(t *testing.T) {
 			r:    bytes.NewBufferString(`Market buy,2025-07-03 10:44:29,SYM123456ABXY,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,7.3690000000,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
 			want: Record{
 				symbol:    "SYM123456ABXY",
-				direction: internal.DirectionBuy,
+				side:      internal.SideBuy,
 				quantity:  ShouldParseDecimal(t, "2.4387014200"),
 				price:     ShouldParseDecimal(t, "7.3690000000"),
 				timestamp: time.Date(2025, 7, 3, 10, 44, 29, 0, time.UTC),
@@ -40,7 +40,7 @@ func TestRecordReader_ReadRecord(t *testing.T) {
 			r:    bytes.NewBufferString(`Market sell,2025-08-04 11:45:30,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
 			want: Record{
 				symbol:    "IE000GA3D489",
-				direction: internal.DirectionSell,
+				side:      internal.SideSell,
 				quantity:  ShouldParseDecimal(t, "2.4387014200"),
 				price:     ShouldParseDecimal(t, "7.9999999999"),
 				timestamp: time.Date(2025, 8, 4, 11, 45, 30, 0, time.UTC),
@@ -48,13 +48,13 @@ func TestRecordReader_ReadRecord(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "malformed direction",
+			name:    "malformed side",
 			r:       bytes.NewBufferString(`Aljksdaf Balsjdkf,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
 			want:    Record{},
 			wantErr: true,
 		},
 		{
-			name:    "empty direction",
+			name:    "empty side",
 			r:       bytes.NewBufferString(`,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,0x1234,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
 			want:    Record{},
 			wantErr: true,
@@ -115,8 +115,8 @@ func TestRecordReader_ReadRecord(t *testing.T) {
 				t.Fatalf("want symbol %v but got %v", tt.want.symbol, got.symbol)
 			}
 
-			if got.direction != tt.want.direction {
-				t.Fatalf("want direction %v but got %v", tt.want.direction, got.direction)
+			if got.side != tt.want.side {
+				t.Fatalf("want side %v but got %v", tt.want.side, got.side)
 			}
 
 			if got.price.Cmp(tt.want.price) != 0 {

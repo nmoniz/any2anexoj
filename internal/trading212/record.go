@@ -13,7 +13,7 @@ import (
 
 type Record struct {
 	symbol    string
-	direction internal.Direction
+	side      internal.Side
 	quantity  *big.Float
 	price     *big.Float
 	timestamp time.Time
@@ -23,8 +23,8 @@ func (r Record) Symbol() string {
 	return r.symbol
 }
 
-func (r Record) Direction() internal.Direction {
-	return r.direction
+func (r Record) Side() internal.Side {
+	return r.side
 }
 
 func (r Record) Quantity() *big.Float {
@@ -63,12 +63,12 @@ func (rr RecordReader) ReadRecord() (Record, error) {
 			return Record{}, fmt.Errorf("read record: %w", err)
 		}
 
-		var dir internal.Direction
+		var side internal.Side
 		switch strings.ToLower(raw[0]) {
 		case MarketBuy, LimitBuy:
-			dir = internal.DirectionBuy
+			side = internal.SideBuy
 		case MarketSell, LimitSell:
-			dir = internal.DirectionSell
+			side = internal.SideSell
 		case "action", "stock split open", "stock split close":
 			continue
 		default:
@@ -92,7 +92,7 @@ func (rr RecordReader) ReadRecord() (Record, error) {
 
 		return Record{
 			symbol:    raw[2],
-			direction: dir,
+			side:      side,
 			quantity:  qant,
 			price:     price,
 			timestamp: ts,
