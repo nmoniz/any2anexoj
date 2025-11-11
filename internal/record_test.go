@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestRecordQueue_Push(t *testing.T) {
+func TestRecordQueue(t *testing.T) {
 	var recCount int
 	newRecord := func() Record {
 		recCount++
@@ -50,6 +50,37 @@ func TestRecordQueue_Push(t *testing.T) {
 	} else {
 		t.Fatalf("Pop() should return the original record")
 	}
+}
+
+func TestRecordQueueNilReceiver(t *testing.T) {
+	var rq *RecordQueue
+
+	if rq.Len() > 0 {
+		t.Fatalf("nil receiver should have zero lenght")
+	}
+
+	_, ok := rq.Pop()
+	if ok {
+		t.Fatalf("Pop() on a nil receiver should return (_,false)")
+	}
+
+	rq.Push(nil)
+	if rq.Len() != 0 {
+		t.Fatalf("Push(nil) on a nil receiver should be a no-op")
+	}
+
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatalf("expected a panic but got nothing")
+		}
+
+		expMsg := "Push to nil RecordQueue"
+		if msg, ok := r.(string); !ok || msg != expMsg {
+			t.Fatalf(`want panic message %q but got "%v"`, expMsg, r)
+		}
+	}()
+	rq.Push(testRecord{})
 }
 
 type testRecord struct {
