@@ -111,24 +111,24 @@ func TestRecordReader_ReadRecord(t *testing.T) {
 				t.Fatalf("ReadRecord() expected an error")
 			}
 
-			if got.symbol != tt.want.symbol {
-				t.Fatalf("want symbol %v but got %v", tt.want.symbol, got.symbol)
+			if got.Symbol() != tt.want.symbol {
+				t.Fatalf("want symbol %v but got %v", tt.want.symbol, got.Symbol())
 			}
 
-			if got.side != tt.want.side {
-				t.Fatalf("want side %v but got %v", tt.want.side, got.side)
+			if got.Side() != tt.want.side {
+				t.Fatalf("want side %v but got %v", tt.want.side, got.Side())
 			}
 
-			if got.price.Cmp(tt.want.price) != 0 {
-				t.Fatalf("want price %v but got %v", tt.want.price, got.price)
+			if got.Price().Cmp(tt.want.price) != 0 {
+				t.Fatalf("want price %v but got %v", tt.want.price, got.Price())
 			}
 
-			if got.quantity.Cmp(tt.want.quantity) != 0 {
-				t.Fatalf("want quantity %v but got %v", tt.want.quantity, got.quantity)
+			if got.Quantity().Cmp(tt.want.quantity) != 0 {
+				t.Fatalf("want quantity %v but got %v", tt.want.quantity, got.Quantity())
 			}
 
-			if !got.timestamp.Equal(tt.want.timestamp) {
-				t.Fatalf("want timestamp %v but got %v", tt.want.timestamp, got.timestamp)
+			if !got.Timestamp().Equal(tt.want.timestamp) {
+				t.Fatalf("want timestamp %v but got %v", tt.want.timestamp, got.Timestamp())
 			}
 		})
 	}

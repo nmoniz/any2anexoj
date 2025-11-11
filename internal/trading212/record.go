@@ -56,7 +56,7 @@ const (
 	LimitSell  = "limit sell"
 )
 
-func (rr RecordReader) ReadRecord() (Record, error) {
+func (rr RecordReader) ReadRecord() (internal.Record, error) {
 	for {
 		raw, err := rr.reader.Read()
 		if err != nil {

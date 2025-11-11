@@ -36,7 +36,7 @@ func (rq *RecordQueue) Push(r Record) {
 	rq.l.PushBack(r)
 }
 
-// Pop removes and returns the first element of the list as the first return value. If the list is
+// Pop removes and returns the first Record of the list as the first return value. If the list is
 // empty returns falso on the 2nd return value, true otherwise.
 func (rq *RecordQueue) Pop() (Record, bool) {
 	if rq == nil || rq.l == nil {
