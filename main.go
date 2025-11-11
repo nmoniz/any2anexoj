@@ -35,5 +35,3 @@ func run() error {
 
 	return nil
 }
-
-var ErrSellWithoutBuy = fmt.Errorf("found sell without bought volume")
