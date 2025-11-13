@@ -38,14 +38,10 @@ func (rq *RecordQueue) Push(r Record) {
 	rq.l.PushBack(r)
 }
 
-// Pop removes and returns the first Record of the list as the first return value. If the list is
-// empty returns falso on the 2nd return value, true otherwise.
+// Pop removes and returns the first Record of the queue in the 1st return value. If the list is
+// empty returns false on the 2nd return value, true otherwise.
 func (rq *RecordQueue) Pop() (Record, bool) {
-	if rq == nil || rq.l == nil {
-		return nil, false
-	}
-
-	el := rq.l.Front()
+	el := rq.frontElement()
 	if el == nil {
 		return nil, false
 	}
@@ -55,6 +51,26 @@ func (rq *RecordQueue) Pop() (Record, bool) {
 	return val.(Record), true
 }
 
+// Peek returns the front Record of the queue in the 1st return value. If the list is empty returns
+// false on the 2nd return value, true otherwise.
+func (rq *RecordQueue) Peek() (Record, bool) {
+	el := rq.frontElement()
+	if el == nil {
+		return nil, false
+	}
+
+	return el.Value.(Record), true
+}
+
+func (rq *RecordQueue) frontElement() *list.Element {
+	if rq == nil || rq.l == nil {
+		return nil
+	}
+
+	return rq.l.Front()
+}
+
+// Len returns how many elements are currently on the queue
 func (rq *RecordQueue) Len() int {
 	if rq == nil || rq.l == nil {
 		return 0
