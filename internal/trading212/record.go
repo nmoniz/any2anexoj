@@ -39,6 +39,14 @@ func (r Record) Timestamp() time.Time {
 	return r.timestamp
 }
 
+func (r Record) Fees() *big.Float {
+	return new(big.Float) // FIX:
+}
+
+func (r Record) Taxes() *big.Float {
+	return new(big.Float) // FIX:
+}
+
 type RecordReader struct {
 	reader *csv.Reader
 }
