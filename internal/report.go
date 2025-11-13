@@ -1,9 +1,5 @@
 package internal
 
-import (
-	"errors"
-)
-
 type RecordReader interface {
 	// ReadRecord should return Records until an error is found.
 	ReadRecord() (Record, error)
