@@ -93,7 +93,7 @@ func TestRecordReader_ReadRecord(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			rr := NewRecordReader(tt.r)
-			got, gotErr := rr.ReadRecord()
+			got, gotErr := rr.ReadRecord(t.Context())
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Fatalf("ReadRecord() failed: %v", gotErr)

@@ -1,6 +1,7 @@
 package trading212
 
 import (
+	"context"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -66,7 +67,7 @@ const (
 	LimitSell  = "limit sell"
 )
 
-func (rr RecordReader) ReadRecord() (internal.Record, error) {
+func (rr RecordReader) ReadRecord(_ context.Context) (internal.Record, error) {
 	for {
 		raw, err := rr.reader.Read()
 		if err != nil {

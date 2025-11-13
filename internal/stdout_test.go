@@ -73,7 +73,7 @@ func TestReportLogger_Write(t *testing.T) {
 			rw := internal.NewReportLogger(buf)
 
 			for _, item := range tt.items {
-				err := rw.Write(item)
+				err := rw.Write(t.Context(), item)
 				if err != nil {
 					t.Fatalf("unexpected error on write: %v", err)
 				}
