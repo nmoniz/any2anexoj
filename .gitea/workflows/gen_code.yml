@@ -1,0 +1,34 @@
+name: Generate check
+
+on:
+  push:
+    paths:
+      - '**/*_gen.go'
+  pull_request:
+    paths:
+      - '**/*_gen.go'
+
+jobs:
+  check-generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Save pre-generate git state
+        run: git status --porcelain > pre-generate.txt
+
+      - name: Run go generate
+        run: go generate ./...
+
+      - name: Save post-generate git state
+        run: git status --porcelain > post-generate.txt
+
+      - name: Check for changes
+        run: |
+          if ! diff pre-generate.txt post-generate.txt | grep .; then
+            echo "No files changed by go generate"
+          else
+            echo "go generate produced changes; commit those first" >&2
+            exit 1
+          fi
