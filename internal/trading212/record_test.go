@@ -24,75 +24,69 @@ func TestRecordReader_ReadRecord(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "well formed buy",
-			r:    bytes.NewBufferString(`Market buy,2025-07-03 10:44:29,SYM123456ABXY,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,7.3690000000,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
+			name: "well-formed buy",
+			r:    bytes.NewBufferString(`Market buy,2025-07-03 10:44:29,SYM123456ABXY,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,7.3690000000,USD,1.17995999,,"EUR",15.25,"EUR",0.25,"EUR",0.02,"EUR",,`),
 			want: Record{
 				symbol:    "SYM123456ABXY",
 				side:      internal.SideBuy,
 				quantity:  ShouldParseDecimal(t, "2.4387014200"),
 				price:     ShouldParseDecimal(t, "7.3690000000"),
 				timestamp: time.Date(2025, 7, 3, 10, 44, 29, 0, time.UTC),
+				fees:      ShouldParseDecimal(t, "0.02"),
+				taxes:     ShouldParseDecimal(t, "0.25"),
 			},
-			wantErr: false,
 		},
 		{
-			name: "well formed sell",
-			r:    bytes.NewBufferString(`Market sell,2025-08-04 11:45:30,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
+			name: "well-formed sell",
+			r:    bytes.NewBufferString(`Market sell,2025-08-04 11:45:30,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",0.1,"EUR"`),
 			want: Record{
 				symbol:    "IE000GA3D489",
 				side:      internal.SideSell,
 				quantity:  ShouldParseDecimal(t, "2.4387014200"),
 				price:     ShouldParseDecimal(t, "7.9999999999"),
 				timestamp: time.Date(2025, 8, 4, 11, 45, 30, 0, time.UTC),
+				fees:      ShouldParseDecimal(t, "0.02"),
+				taxes:     ShouldParseDecimal(t, "0.1"),
 			},
-			wantErr: false,
 		},
 		{
 			name:    "malformed side",
 			r:       bytes.NewBufferString(`Aljksdaf Balsjdkf,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
-			want:    Record{},
 			wantErr: true,
 		},
 		{
 			name:    "empty side",
 			r:       bytes.NewBufferString(`,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,0x1234,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
-			want:    Record{},
 			wantErr: true,
 		},
 		{
 			name:    "malformed qantity",
 			r:       bytes.NewBufferString(`Market sell,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,0x1234,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
-			want:    Record{},
 			wantErr: true,
 		},
 		{
 			name:    "empty qantity",
 			r:       bytes.NewBufferString(`Market sell,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
-			want:    Record{},
 			wantErr: true,
 		},
 		{
 			name:    "malformed price",
 			r:       bytes.NewBufferString(`Market sell,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,0b101010,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
-			want:    Record{},
 			wantErr: true,
 		},
 		{
 			name:    "empty price",
 			r:       bytes.NewBufferString(`Market sell,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
-			want:    Record{},
 			wantErr: true,
 		},
 		{
 			name:    "malformed timestamp",
 			r:       bytes.NewBufferString(`Market sell,2006-01-02T15:04:05Z07:00,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
-			want:    Record{},
 			wantErr: true,
 		},
 		{
 			name:    "empty timestamp",
 			r:       bytes.NewBufferString(`Market sell,,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
-			want:    Record{},
 			wantErr: true,
 		},
 	}
@@ -129,6 +123,14 @@ func TestRecordReader_ReadRecord(t *testing.T) {
 
 			if !got.Timestamp().Equal(tt.want.timestamp) {
 				t.Fatalf("want timestamp %v but got %v", tt.want.timestamp, got.Timestamp())
+			}
+
+			if got.Fees().Cmp(tt.want.fees) != 0 {
+				t.Fatalf("want fees %v but got %v", tt.want.fees, got.Fees())
+			}
+
+			if got.Taxes().Cmp(tt.want.taxes) != 0 {
+				t.Fatalf("want taxes %v but got %v", tt.want.taxes, got.Taxes())
 			}
 		})
 	}
