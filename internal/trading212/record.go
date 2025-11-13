@@ -17,6 +17,8 @@ type Record struct {
 	quantity  *big.Float
 	price     *big.Float
 	timestamp time.Time
+	fees      *big.Float
+	taxes     *big.Float
 }
 
 func (r Record) Symbol() string {
@@ -37,6 +39,14 @@ func (r Record) Price() *big.Float {
 
 func (r Record) Timestamp() time.Time {
 	return r.timestamp
+}
+
+func (r Record) Fees() *big.Float {
+	return r.fees
+}
+
+func (r Record) Taxes() *big.Float {
+	return r.taxes
 }
 
 type RecordReader struct {
@@ -90,12 +100,29 @@ func (rr RecordReader) ReadRecord() (internal.Record, error) {
 			return Record{}, fmt.Errorf("parse record timestamp: %w", err)
 		}
 
+		convertionFee, err := parseOptinalDecimal(raw[16])
+		if err != nil {
+			return Record{}, fmt.Errorf("parse record convertion fee: %w", err)
+		}
+
+		stampDutyTax, err := parseOptinalDecimal(raw[14])
+		if err != nil {
+			return Record{}, fmt.Errorf("parse record stamp duty tax: %w", err)
+		}
+
+		frenchTxTax, err := parseOptinalDecimal(raw[18])
+		if err != nil {
+			return Record{}, fmt.Errorf("parse record french transaction tax: %w", err)
+		}
+
 		return Record{
 			symbol:    raw[2],
 			side:      side,
 			quantity:  qant,
 			price:     price,
 			timestamp: ts,
+			fees:      convertionFee,
+			taxes:     new(big.Float).Add(stampDutyTax, frenchTxTax),
 		}, nil
 	}
 }
@@ -105,4 +132,15 @@ func (rr RecordReader) ReadRecord() (internal.Record, error) {
 func parseDecimal(s string) (*big.Float, error) {
 	f, _, err := big.ParseFloat(s, 10, 128, big.ToZero)
 	return f, err
+}
+
+// parseOptinalDecimal behaves the same as parseDecimal but returns 0 when len(s) is 0 instead of
+// error.
+// Using this function helps avoid issues around converting values due to sligh parameter changes.
+func parseOptinalDecimal(s string) (*big.Float, error) {
+	if len(s) == 0 {
+		return new(big.Float), nil
+	}
+
+	return parseDecimal(s)
 }

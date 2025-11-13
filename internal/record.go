@@ -12,6 +12,8 @@ type Record interface {
 	Price() *big.Float
 	Quantity() *big.Float
 	Timestamp() time.Time
+	Fees() *big.Float
+	Taxes() *big.Float
 }
 
 type RecordQueue struct {
