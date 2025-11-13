@@ -12,7 +12,8 @@ import (
 func main() {
 	err := run()
 	if err != nil {
-		slog.Error("fatal error", slog.Any("err", err))
+		slog.Error("found a fatal issue", slog.Any("err", err))
+		os.Exit(1)
 	}
 }
 
@@ -24,9 +25,9 @@ func run() error {
 
 	reader := trading212.NewRecordReader(f)
 
-	reporter := internal.NewReporter(reader)
+	writer := internal.NewStdOutLogger()
 
-	err = reporter.Run()
+	err = internal.BuildReport(reader, writer)
 	if err != nil {
 		return err
 	}
