@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -24,7 +25,7 @@ func NewReportLogger(w io.Writer) *ReportLogger {
 	}
 }
 
-func (rl *ReportLogger) Write(ri ReportItem) error {
+func (rl *ReportLogger) Write(_ context.Context, ri ReportItem) error {
 	rl.counter++
 	_, err := fmt.Fprintf(rl.writer, "%6d - realised %+f on %s\n", rl.counter, ri.RealisedPnL(), ri.SellTimestamp.Format(time.RFC3339))
 	return err

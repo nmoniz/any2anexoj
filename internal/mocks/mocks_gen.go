@@ -10,6 +10,7 @@
 package mocks
 
 import (
+	context "context"
 	big "math/big"
 	reflect "reflect"
 	time "time"
@@ -43,18 +44,18 @@ func (m *MockRecordReader) EXPECT() *MockRecordReaderMockRecorder {
 }
 
 // ReadRecord mocks base method.
-func (m *MockRecordReader) ReadRecord() (internal.Record, error) {
+func (m *MockRecordReader) ReadRecord(arg0 context.Context) (internal.Record, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReadRecord")
+	ret := m.ctrl.Call(m, "ReadRecord", arg0)
 	ret0, _ := ret[0].(internal.Record)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ReadRecord indicates an expected call of ReadRecord.
-func (mr *MockRecordReaderMockRecorder) ReadRecord() *MockRecordReaderReadRecordCall {
+func (mr *MockRecordReaderMockRecorder) ReadRecord(arg0 any) *MockRecordReaderReadRecordCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadRecord", reflect.TypeOf((*MockRecordReader)(nil).ReadRecord))
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadRecord", reflect.TypeOf((*MockRecordReader)(nil).ReadRecord), arg0)
 	return &MockRecordReaderReadRecordCall{Call: call}
 }
 
@@ -70,13 +71,13 @@ func (c *MockRecordReaderReadRecordCall) Return(arg0 internal.Record, arg1 error
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockRecordReaderReadRecordCall) Do(f func() (internal.Record, error)) *MockRecordReaderReadRecordCall {
+func (c *MockRecordReaderReadRecordCall) Do(f func(context.Context) (internal.Record, error)) *MockRecordReaderReadRecordCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockRecordReaderReadRecordCall) DoAndReturn(f func() (internal.Record, error)) *MockRecordReaderReadRecordCall {
+func (c *MockRecordReaderReadRecordCall) DoAndReturn(f func(context.Context) (internal.Record, error)) *MockRecordReaderReadRecordCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -396,17 +397,17 @@ func (m *MockReportWriter) EXPECT() *MockReportWriterMockRecorder {
 }
 
 // Write mocks base method.
-func (m *MockReportWriter) Write(arg0 internal.ReportItem) error {
+func (m *MockReportWriter) Write(arg0 context.Context, arg1 internal.ReportItem) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Write", arg0)
+	ret := m.ctrl.Call(m, "Write", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Write indicates an expected call of Write.
-func (mr *MockReportWriterMockRecorder) Write(arg0 any) *MockReportWriterWriteCall {
+func (mr *MockReportWriterMockRecorder) Write(arg0, arg1 any) *MockReportWriterWriteCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Write", reflect.TypeOf((*MockReportWriter)(nil).Write), arg0)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Write", reflect.TypeOf((*MockReportWriter)(nil).Write), arg0, arg1)
 	return &MockReportWriterWriteCall{Call: call}
 }
 
@@ -422,13 +423,13 @@ func (c *MockReportWriterWriteCall) Return(arg0 error) *MockReportWriterWriteCal
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockReportWriterWriteCall) Do(f func(internal.ReportItem) error) *MockReportWriterWriteCall {
+func (c *MockReportWriterWriteCall) Do(f func(context.Context, internal.ReportItem) error) *MockReportWriterWriteCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockReportWriterWriteCall) DoAndReturn(f func(internal.ReportItem) error) *MockReportWriterWriteCall {
+func (c *MockReportWriterWriteCall) DoAndReturn(f func(context.Context, internal.ReportItem) error) *MockReportWriterWriteCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

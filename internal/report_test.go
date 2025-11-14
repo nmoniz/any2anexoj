@@ -1,6 +1,7 @@
 package internal_test
 
 import (
+	"context"
 	"io"
 	"math/big"
 	"testing"
@@ -20,7 +21,7 @@ func TestReporter_Run(t *testing.T) {
 		mockRecord(ctrl, 20.0, 10.0, internal.SideBuy, now),
 		mockRecord(ctrl, 25.0, 10.0, internal.SideSell, now.Add(1)),
 	}
-	reader.EXPECT().ReadRecord().DoAndReturn(func() (internal.Record, error) {
+	reader.EXPECT().ReadRecord(gomock.Any()).DoAndReturn(func(ctx context.Context) (internal.Record, error) {
 		if len(records) > 0 {
 			r := records[0]
 			records = records[1:]
@@ -31,7 +32,7 @@ func TestReporter_Run(t *testing.T) {
 	}).Times(3)
 
 	writer := mocks.NewMockReportWriter(ctrl)
-	writer.EXPECT().Write(gomock.Eq(internal.ReportItem{
+	writer.EXPECT().Write(gomock.Any(), gomock.Eq(internal.ReportItem{
 		BuyValue:      new(big.Float).SetFloat64(200.0),
 		BuyTimestamp:  now,
 		SellValue:     new(big.Float).SetFloat64(250.0),
@@ -40,7 +41,7 @@ func TestReporter_Run(t *testing.T) {
 		Taxes:         new(big.Float),
 	})).Times(1)
 
-	gotErr := internal.BuildReport(reader, writer)
+	gotErr := internal.BuildReport(t.Context(), reader, writer)
 	if gotErr != nil {
 		t.Fatalf("got unexpected err: %v", gotErr)
 	}
