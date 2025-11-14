@@ -11,13 +11,11 @@ This tool converts the statements from brokers and exchanges into a format compa
 ## Install
 
 ```bash
-go install git.naterciomoniz.net/applications/broker2anexoj@latest
+go install github.com/nmoniz/any2anexoj/cmd/any2anexoj-cli@latest
 ```
 
 ## Usage
 
 ```bash
-broker2anexoj
+cat statement.csv | broker2anexoj --platform=tranding212
 ```
-
-
