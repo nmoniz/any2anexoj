@@ -1,4 +1,4 @@
-module git.naterciomoniz.net/applications/broker2anexoj
+module github.com/nmoniz/any2anexoj
 
 go 1.25.3
 

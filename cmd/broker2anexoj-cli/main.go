@@ -6,8 +6,8 @@ import (
 	"os"
 	"os/signal"
 
-	"git.naterciomoniz.net/applications/broker2anexoj/internal"
-	"git.naterciomoniz.net/applications/broker2anexoj/internal/trading212"
+	"github.com/nmoniz/any2anexoj/internal"
+	"github.com/nmoniz/any2anexoj/internal/trading212"
 	"golang.org/x/sync/errgroup"
 )
 

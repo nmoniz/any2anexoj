@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"git.naterciomoniz.net/applications/broker2anexoj/internal"
-	"git.naterciomoniz.net/applications/broker2anexoj/internal/mocks"
+	"github.com/nmoniz/any2anexoj/internal"
+	"github.com/nmoniz/any2anexoj/internal/mocks"
 	"go.uber.org/mock/gomock"
 )
 

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"git.naterciomoniz.net/applications/broker2anexoj/internal"
+	"github.com/nmoniz/any2anexoj/internal"
 )
 
 type Record struct {

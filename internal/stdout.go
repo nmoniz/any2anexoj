@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+// ReportLogger writes a simple, human readable, line to the provided io.Writer for each
+// ReportItem received.
 type ReportLogger struct {
 	counter int
 	writer  io.Writer
