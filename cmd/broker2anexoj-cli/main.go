@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -26,12 +25,8 @@ func run(ctx context.Context) error {
 
 	eg, ctx := errgroup.WithContext(ctx)
 
-	f, err := os.Open("test.csv")
-	if err != nil {
-		return fmt.Errorf("open statement: %w", err)
-	}
-
-	reader := trading212.NewRecordReader(f)
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, nil)))
+	reader := trading212.NewRecordReader(os.Stdin)
 
 	writer := internal.NewStdOutLogger()
 
@@ -39,7 +34,7 @@ func run(ctx context.Context) error {
 		return internal.BuildReport(ctx, reader, writer)
 	})
 
-	err = eg.Wait()
+	err := eg.Wait()
 	if err != nil {
 		return err
 	}
