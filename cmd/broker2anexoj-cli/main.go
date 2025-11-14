@@ -7,31 +7,49 @@ import (
 	"os"
 	"os/signal"
 
-	"git.naterciomoniz.net/applications/broker2anexoj/internal"
-	"git.naterciomoniz.net/applications/broker2anexoj/internal/trading212"
+	"github.com/nmoniz/any2anexoj/internal"
+	"github.com/nmoniz/any2anexoj/internal/trading212"
+	"github.com/spf13/pflag"
 	"golang.org/x/sync/errgroup"
 )
 
+// TODO: once we support more brokers or exchanges we should make this parameter required and
+// remove/change default
+var platform = pflag.StringP("platform", "p", "trading212", "one of the supported platforms")
+
+var readerFactories = map[string]func() internal.RecordReader{
+	"trading212": func() internal.RecordReader { return trading212.NewRecordReader(os.Stdin) },
+}
+
 func main() {
-	err := run(context.Background())
+	pflag.Parse()
+
+	if platform == nil || len(*platform) == 0 {
+		slog.Error("--platform flag is required")
+		os.Exit(1)
+	}
+
+	err := run(context.Background(), *platform)
 	if err != nil {
 		slog.Error("found a fatal issue", slog.Any("err", err))
 		os.Exit(1)
 	}
 }
 
-func run(ctx context.Context) error {
+func run(ctx context.Context, platform string) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Kill, os.Interrupt)
 	defer cancel()
 
 	eg, ctx := errgroup.WithContext(ctx)
 
-	f, err := os.Open("test.csv")
-	if err != nil {
-		return fmt.Errorf("open statement: %w", err)
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, nil)))
+
+	factory, ok := readerFactories[platform]
+	if !ok {
+		return fmt.Errorf("unsupported platform: %s", platform)
 	}
 
-	reader := trading212.NewRecordReader(f)
+	reader := factory()
 
 	writer := internal.NewStdOutLogger()
 
@@ -39,7 +57,7 @@ func run(ctx context.Context) error {
 		return internal.BuildReport(ctx, reader, writer)
 	})
 
-	err = eg.Wait()
+	err := eg.Wait()
 	if err != nil {
 		return err
 	}
