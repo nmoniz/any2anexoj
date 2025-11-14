@@ -17,7 +17,7 @@ import (
 // remove/change default
 var platform = pflag.StringP("platform", "p", "trading212", "one of the supported platforms")
 
-var supportedPlatforms = map[string]func() internal.RecordReader{
+var readerFactories = map[string]func() internal.RecordReader{
 	"trading212": func() internal.RecordReader { return trading212.NewRecordReader(os.Stdin) },
 }
 
@@ -44,7 +44,7 @@ func run(ctx context.Context, platform string) error {
 
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, nil)))
 
-	factory, ok := supportedPlatforms[platform]
+	factory, ok := readerFactories[platform]
 	if !ok {
 		return fmt.Errorf("unsupported platform: %s", platform)
 	}
