@@ -2,15 +2,13 @@ name: Generate check
 
 on:
   push:
-    paths:
-      - '**/*_gen.go'
   pull_request:
-    paths:
-      - '**/*_gen.go'
 
 jobs:
   check-generate:
     runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.changed_files, '*_gen.go') || 
+        contains(github.event.pull_request.changed_files, '*/generate.go')
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
