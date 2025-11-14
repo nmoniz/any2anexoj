@@ -1,4 +1,4 @@
-# broker2anexoj
+# any2anexoj
 
 This tool converts the statements from brokers and exchanges into a format compatible with the Portuguese IRS form: [Mod_3_anexo_j](https://info.portaldasfinancas.gov.pt/pt/apoio_contribuinte/modelos_formularios/irs/Documents/Mod_3_anexo_J.pdf)
 
