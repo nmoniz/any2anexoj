@@ -3,11 +3,11 @@ package trading212
 import (
 	"bytes"
 	"io"
-	"math/big"
 	"testing"
 	"time"
 
 	"github.com/nmoniz/any2anexoj/internal"
+	"github.com/shopspring/decimal"
 )
 
 func TestRecordReader_ReadRecord(t *testing.T) {
@@ -136,7 +136,7 @@ func TestRecordReader_ReadRecord(t *testing.T) {
 	}
 }
 
-func ShouldParseDecimal(t testing.TB, sf string) *big.Float {
+func ShouldParseDecimal(t testing.TB, sf string) decimal.Decimal {
 	t.Helper()
 
 	bf, err := parseDecimal(sf)

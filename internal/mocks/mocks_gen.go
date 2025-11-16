@@ -11,11 +11,11 @@ package mocks
 
 import (
 	context "context"
-	big "math/big"
 	reflect "reflect"
 	time "time"
 
 	internal "github.com/nmoniz/any2anexoj/internal"
+	decimal "github.com/shopspring/decimal"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -107,10 +107,10 @@ func (m *MockRecord) EXPECT() *MockRecordMockRecorder {
 }
 
 // Fees mocks base method.
-func (m *MockRecord) Fees() *big.Float {
+func (m *MockRecord) Fees() decimal.Decimal {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Fees")
-	ret0, _ := ret[0].(*big.Float)
+	ret0, _ := ret[0].(decimal.Decimal)
 	return ret0
 }
 
@@ -127,28 +127,28 @@ type MockRecordFeesCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockRecordFeesCall) Return(arg0 *big.Float) *MockRecordFeesCall {
+func (c *MockRecordFeesCall) Return(arg0 decimal.Decimal) *MockRecordFeesCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockRecordFeesCall) Do(f func() *big.Float) *MockRecordFeesCall {
+func (c *MockRecordFeesCall) Do(f func() decimal.Decimal) *MockRecordFeesCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockRecordFeesCall) DoAndReturn(f func() *big.Float) *MockRecordFeesCall {
+func (c *MockRecordFeesCall) DoAndReturn(f func() decimal.Decimal) *MockRecordFeesCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // Price mocks base method.
-func (m *MockRecord) Price() *big.Float {
+func (m *MockRecord) Price() decimal.Decimal {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Price")
-	ret0, _ := ret[0].(*big.Float)
+	ret0, _ := ret[0].(decimal.Decimal)
 	return ret0
 }
 
@@ -165,28 +165,28 @@ type MockRecordPriceCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockRecordPriceCall) Return(arg0 *big.Float) *MockRecordPriceCall {
+func (c *MockRecordPriceCall) Return(arg0 decimal.Decimal) *MockRecordPriceCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockRecordPriceCall) Do(f func() *big.Float) *MockRecordPriceCall {
+func (c *MockRecordPriceCall) Do(f func() decimal.Decimal) *MockRecordPriceCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockRecordPriceCall) DoAndReturn(f func() *big.Float) *MockRecordPriceCall {
+func (c *MockRecordPriceCall) DoAndReturn(f func() decimal.Decimal) *MockRecordPriceCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // Quantity mocks base method.
-func (m *MockRecord) Quantity() *big.Float {
+func (m *MockRecord) Quantity() decimal.Decimal {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Quantity")
-	ret0, _ := ret[0].(*big.Float)
+	ret0, _ := ret[0].(decimal.Decimal)
 	return ret0
 }
 
@@ -203,19 +203,19 @@ type MockRecordQuantityCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockRecordQuantityCall) Return(arg0 *big.Float) *MockRecordQuantityCall {
+func (c *MockRecordQuantityCall) Return(arg0 decimal.Decimal) *MockRecordQuantityCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockRecordQuantityCall) Do(f func() *big.Float) *MockRecordQuantityCall {
+func (c *MockRecordQuantityCall) Do(f func() decimal.Decimal) *MockRecordQuantityCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockRecordQuantityCall) DoAndReturn(f func() *big.Float) *MockRecordQuantityCall {
+func (c *MockRecordQuantityCall) DoAndReturn(f func() decimal.Decimal) *MockRecordQuantityCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -297,10 +297,10 @@ func (c *MockRecordSymbolCall) DoAndReturn(f func() string) *MockRecordSymbolCal
 }
 
 // Taxes mocks base method.
-func (m *MockRecord) Taxes() *big.Float {
+func (m *MockRecord) Taxes() decimal.Decimal {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Taxes")
-	ret0, _ := ret[0].(*big.Float)
+	ret0, _ := ret[0].(decimal.Decimal)
 	return ret0
 }
 
@@ -317,19 +317,19 @@ type MockRecordTaxesCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockRecordTaxesCall) Return(arg0 *big.Float) *MockRecordTaxesCall {
+func (c *MockRecordTaxesCall) Return(arg0 decimal.Decimal) *MockRecordTaxesCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockRecordTaxesCall) Do(f func() *big.Float) *MockRecordTaxesCall {
+func (c *MockRecordTaxesCall) Do(f func() decimal.Decimal) *MockRecordTaxesCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockRecordTaxesCall) DoAndReturn(f func() *big.Float) *MockRecordTaxesCall {
+func (c *MockRecordTaxesCall) DoAndReturn(f func() decimal.Decimal) *MockRecordTaxesCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

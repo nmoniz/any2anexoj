@@ -5,8 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math/big"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type RecordReader interface {
@@ -20,7 +21,7 @@ type ReportWriter interface {
 }
 
 func BuildReport(ctx context.Context, reader RecordReader, writer ReportWriter) error {
-	buys := make(map[string]*RecordQueue)
+	buys := make(map[string]*FillerQueue)
 
 	for {
 		select {
@@ -37,7 +38,7 @@ func BuildReport(ctx context.Context, reader RecordReader, writer ReportWriter) 
 
 			buyQueue, ok := buys[rec.Symbol()]
 			if !ok {
-				buyQueue = new(RecordQueue)
+				buyQueue = new(FillerQueue)
 				buys[rec.Symbol()] = buyQueue
 			}
 
@@ -49,42 +50,41 @@ func BuildReport(ctx context.Context, reader RecordReader, writer ReportWriter) 
 	}
 }
 
-func processRecord(ctx context.Context, q *RecordQueue, rec Record, writer ReportWriter) error {
+func processRecord(ctx context.Context, q *FillerQueue, rec Record, writer ReportWriter) error {
 	switch rec.Side() {
 	case SideBuy:
-		q.Push(rec)
+		q.Push(NewFiller(rec))
 
 	case SideSell:
-		unmatchedQty := new(big.Float).Copy(rec.Quantity())
-		zero := new(big.Float)
+		unmatchedQty := rec.Quantity()
 
-		for unmatchedQty.Cmp(zero) > 0 {
+		for unmatchedQty.IsPositive() {
 			buy, ok := q.Peek()
 			if !ok {
 				return ErrInsufficientBoughtVolume
 			}
 
-			var matchedQty *big.Float
-			if buy.Quantity().Cmp(unmatchedQty) > 0 {
-				matchedQty = unmatchedQty
-				buy.Quantity().Sub(buy.Quantity(), unmatchedQty)
-			} else {
-				matchedQty = buy.Quantity()
-				q.Pop()
+			matchedQty, filled := buy.Fill(unmatchedQty)
+
+			if filled {
+				_, ok := q.Pop()
+				if !ok {
+					return fmt.Errorf("pop empty filler queue")
+				}
 			}
 
-			unmatchedQty.Sub(unmatchedQty, matchedQty)
+			unmatchedQty = unmatchedQty.Sub(matchedQty)
 
-			sellValue := new(big.Float).Mul(matchedQty, rec.Price())
-			buyValue := new(big.Float).Mul(matchedQty, buy.Price())
+			buyValue := matchedQty.Mul(buy.Price())
+			sellValue := matchedQty.Mul(rec.Price())
 
 			err := writer.Write(ctx, ReportItem{
 				BuyValue:      buyValue,
 				BuyTimestamp:  buy.Timestamp(),
 				SellValue:     sellValue,
 				SellTimestamp: rec.Timestamp(),
-				Fees:          new(big.Float).Add(buy.Fees(), rec.Fees()),
-				Taxes:         new(big.Float).Add(buy.Taxes(), rec.Fees()),
+				Fees:          buy.Fees().Add(rec.Fees()),
+				Taxes:         buy.Taxes().Add(rec.Fees()),
 			})
 			if err != nil {
 				return fmt.Errorf("write report item: %w", err)
@@ -99,16 +99,14 @@ func processRecord(ctx context.Context, q *RecordQueue, rec Record, writer Repor
 }
 
 type ReportItem struct {
-	BuyValue      *big.Float
+	BuyValue      decimal.Decimal
 	BuyTimestamp  time.Time
-	SellValue     *big.Float
+	SellValue     decimal.Decimal
 	SellTimestamp time.Time
-	Fees          *big.Float
-	Taxes         *big.Float
+	Fees          decimal.Decimal
+	Taxes         decimal.Decimal
 }
 
-func (ri ReportItem) RealisedPnL() *big.Float {
-	return new(big.Float).Sub(ri.SellValue, ri.BuyValue)
+func (ri ReportItem) RealisedPnL() decimal.Decimal {
+	return ri.SellValue.Sub(ri.BuyValue)
 }
-
-var ErrInsufficientBoughtVolume = fmt.Errorf("insufficient bought volume")

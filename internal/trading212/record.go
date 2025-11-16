@@ -5,21 +5,21 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"math/big"
 	"strings"
 	"time"
 
 	"github.com/nmoniz/any2anexoj/internal"
+	"github.com/shopspring/decimal"
 )
 
 type Record struct {
 	symbol    string
 	side      internal.Side
-	quantity  *big.Float
-	price     *big.Float
+	quantity  decimal.Decimal
+	price     decimal.Decimal
 	timestamp time.Time
-	fees      *big.Float
-	taxes     *big.Float
+	fees      decimal.Decimal
+	taxes     decimal.Decimal
 }
 
 func (r Record) Symbol() string {
@@ -30,11 +30,11 @@ func (r Record) Side() internal.Side {
 	return r.side
 }
 
-func (r Record) Quantity() *big.Float {
+func (r Record) Quantity() decimal.Decimal {
 	return r.quantity
 }
 
-func (r Record) Price() *big.Float {
+func (r Record) Price() decimal.Decimal {
 	return r.price
 }
 
@@ -42,11 +42,11 @@ func (r Record) Timestamp() time.Time {
 	return r.timestamp
 }
 
-func (r Record) Fees() *big.Float {
+func (r Record) Fees() decimal.Decimal {
 	return r.fees
 }
 
-func (r Record) Taxes() *big.Float {
+func (r Record) Taxes() decimal.Decimal {
 	return r.taxes
 }
 
@@ -123,24 +123,23 @@ func (rr RecordReader) ReadRecord(_ context.Context) (internal.Record, error) {
 			price:     price,
 			timestamp: ts,
 			fees:      convertionFee,
-			taxes:     new(big.Float).Add(stampDutyTax, frenchTxTax),
+			taxes:     stampDutyTax.Add(frenchTxTax),
 		}, nil
 	}
 }
 
 // parseFloat attempts to parse a string using a standard precision and rounding mode.
 // Using this function helps avoid issues around converting values due to sligh parameter changes.
-func parseDecimal(s string) (*big.Float, error) {
-	f, _, err := big.ParseFloat(s, 10, 128, big.ToZero)
-	return f, err
+func parseDecimal(s string) (decimal.Decimal, error) {
+	return decimal.NewFromString(s)
 }
 
 // parseOptinalDecimal behaves the same as parseDecimal but returns 0 when len(s) is 0 instead of
 // error.
 // Using this function helps avoid issues around converting values due to sligh parameter changes.
-func parseOptinalDecimal(s string) (*big.Float, error) {
+func parseOptinalDecimal(s string) (decimal.Decimal, error) {
 	if len(s) == 0 {
-		return new(big.Float), nil
+		return decimal.Decimal{}, nil
 	}
 
 	return parseDecimal(s)
