@@ -5,14 +5,33 @@ on:
   pull_request:
 
 jobs:
-  check-generate:
+  check-changes:
     runs-on: ubuntu-latest
-    if: contains(github.event.pull_request.changed_files, '*_gen.go') || 
-        contains(github.event.pull_request.changed_files, '*/generate.go')
+    outputs:
+      has_gen_changes: ${{ steps.check.outputs.has_gen_changes }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+        with:
+          fetch-depth: 0
+
+      - name: Check for generated file changes
+        id: check
+        run: |
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '_gen\.go$|/generate\.go$'; then
+            echo "has_gen_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_gen_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+  check-generate:
+    runs-on: ubuntu-latest
+    needs: check-changes
+    if: needs.check-changes.outputs.has_gen_changes == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Setup Go
         uses: actions/setup-go@v4
         with:

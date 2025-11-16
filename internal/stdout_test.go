@@ -3,11 +3,11 @@ package internal_test
 import (
 	"bytes"
 	"fmt"
-	"math/big"
 	"testing"
 	"time"
 
 	"github.com/nmoniz/any2anexoj/internal"
+	"github.com/shopspring/decimal"
 )
 
 func TestReportLogger_Write(t *testing.T) {
@@ -25,45 +25,45 @@ func TestReportLogger_Write(t *testing.T) {
 			name: "single item positive",
 			items: []internal.ReportItem{
 				{
-					BuyValue:      new(big.Float).SetFloat64(100.0),
-					SellValue:     new(big.Float).SetFloat64(200.0),
+					BuyValue:      decimal.NewFromFloat(100.0),
+					SellValue:     decimal.NewFromFloat(200.0),
 					SellTimestamp: tNow,
 				},
 			},
 			want: []string{
-				fmt.Sprintf("%6d - realised +100.000000 on %s\n", 1, tNow.Format(time.RFC3339)),
+				fmt.Sprintf("%6d: realised 100 on %s\n", 1, tNow.Format(time.RFC3339)),
 			},
 		},
 		{
 			name: "single item negative",
 			items: []internal.ReportItem{
 				{
-					BuyValue:      new(big.Float).SetFloat64(200.0),
-					SellValue:     new(big.Float).SetFloat64(150.0),
+					BuyValue:      decimal.NewFromFloat(200.0),
+					SellValue:     decimal.NewFromFloat(150.0),
 					SellTimestamp: tNow,
 				},
 			},
 			want: []string{
-				fmt.Sprintf("%6d - realised -50.000000 on %s\n", 1, tNow.Format(time.RFC3339)),
+				fmt.Sprintf("%6d: realised -50 on %s\n", 1, tNow.Format(time.RFC3339)),
 			},
 		},
 		{
 			name: "multiple items",
 			items: []internal.ReportItem{
 				{
-					BuyValue:      new(big.Float).SetFloat64(100.0),
-					SellValue:     new(big.Float).SetFloat64(200.0),
+					BuyValue:      decimal.NewFromFloat(100.0),
+					SellValue:     decimal.NewFromFloat(200.0),
 					SellTimestamp: tNow,
 				},
 				{
-					BuyValue:      new(big.Float).SetFloat64(200.0),
-					SellValue:     new(big.Float).SetFloat64(150.0),
+					BuyValue:      decimal.NewFromFloat(200.0),
+					SellValue:     decimal.NewFromFloat(150.0),
 					SellTimestamp: tNow.Add(1),
 				},
 			},
 			want: []string{
-				fmt.Sprintf("%6d - realised +100.000000 on %s\n", 1, tNow.Format(time.RFC3339)),
-				fmt.Sprintf("%6d - realised -50.000000 on %s\n", 2, tNow.Add(1).Format(time.RFC3339)),
+				fmt.Sprintf("%6d: realised 100 on %s\n", 1, tNow.Format(time.RFC3339)),
+				fmt.Sprintf("%6d: realised -50 on %s\n", 2, tNow.Add(1).Format(time.RFC3339)),
 			},
 		},
 	}
