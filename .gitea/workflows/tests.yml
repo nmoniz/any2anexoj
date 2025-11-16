@@ -5,9 +5,29 @@ on:
     types: [opened, reopened, synchronize]
 
 jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      has_go_changes: ${{ steps.check.outputs.has_go_changes }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Check for Go changes
+        id: check
+        run: |
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.go$|go\.(mod|sum)$'; then
+            echo "has_go_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_go_changes=false" >> $GITHUB_OUTPUT
+          fi
+
   tests:
     runs-on: ubuntu-latest
-    if: contains(github.event.pull_request.changed_files, '*.go')
+    needs: check-changes
+    if: needs.check-changes.outputs.has_go_changes == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
