@@ -10,9 +10,37 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+type Record interface {
+	Symbol() string
+	BrokerCountry() int64
+	AssetCountry() int64
+	Side() Side
+	Price() decimal.Decimal
+	Quantity() decimal.Decimal
+	Timestamp() time.Time
+	Fees() decimal.Decimal
+	Taxes() decimal.Decimal
+}
+
 type RecordReader interface {
 	// ReadRecord should return Records until an error is found.
 	ReadRecord(context.Context) (Record, error)
+}
+
+type ReportItem struct {
+	Symbol        string
+	BrokerCountry int64
+	AssetCountry  int64
+	BuyValue      decimal.Decimal
+	BuyTimestamp  time.Time
+	SellValue     decimal.Decimal
+	SellTimestamp time.Time
+	Fees          decimal.Decimal
+	Taxes         decimal.Decimal
+}
+
+func (ri ReportItem) RealisedPnL() decimal.Decimal {
+	return ri.SellValue.Sub(ri.BuyValue)
 }
 
 type ReportWriter interface {
@@ -79,6 +107,9 @@ func processRecord(ctx context.Context, q *FillerQueue, rec Record, writer Repor
 			sellValue := matchedQty.Mul(rec.Price())
 
 			err := writer.Write(ctx, ReportItem{
+				Symbol:        rec.Symbol(),
+				BrokerCountry: rec.BrokerCountry(),
+				AssetCountry:  rec.AssetCountry(),
 				BuyValue:      buyValue,
 				BuyTimestamp:  buy.Timestamp(),
 				SellValue:     sellValue,
@@ -96,17 +127,4 @@ func processRecord(ctx context.Context, q *FillerQueue, rec Record, writer Repor
 	}
 
 	return nil
-}
-
-type ReportItem struct {
-	BuyValue      decimal.Decimal
-	BuyTimestamp  time.Time
-	SellValue     decimal.Decimal
-	SellTimestamp time.Time
-	Fees          decimal.Decimal
-	Taxes         decimal.Decimal
-}
-
-func (ri ReportItem) RealisedPnL() decimal.Decimal {
-	return ri.SellValue.Sub(ri.BuyValue)
 }

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/biter777/countries"
 	"github.com/nmoniz/any2anexoj/internal"
 	"github.com/shopspring/decimal"
 )
@@ -24,6 +25,14 @@ type Record struct {
 
 func (r Record) Symbol() string {
 	return r.symbol
+}
+
+func (r Record) BrokerCountry() int64 {
+	return int64(Country)
+}
+
+func (r Record) AssetCountry() int64 {
+	return int64(countries.ByName(r.Symbol()[:2]).Info().Code)
 }
 
 func (r Record) Side() internal.Side {

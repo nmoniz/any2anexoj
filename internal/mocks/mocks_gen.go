@@ -106,6 +106,82 @@ func (m *MockRecord) EXPECT() *MockRecordMockRecorder {
 	return m.recorder
 }
 
+// AssetCountry mocks base method.
+func (m *MockRecord) AssetCountry() int64 {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AssetCountry")
+	ret0, _ := ret[0].(int64)
+	return ret0
+}
+
+// AssetCountry indicates an expected call of AssetCountry.
+func (mr *MockRecordMockRecorder) AssetCountry() *MockRecordAssetCountryCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssetCountry", reflect.TypeOf((*MockRecord)(nil).AssetCountry))
+	return &MockRecordAssetCountryCall{Call: call}
+}
+
+// MockRecordAssetCountryCall wrap *gomock.Call
+type MockRecordAssetCountryCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockRecordAssetCountryCall) Return(arg0 int64) *MockRecordAssetCountryCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockRecordAssetCountryCall) Do(f func() int64) *MockRecordAssetCountryCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockRecordAssetCountryCall) DoAndReturn(f func() int64) *MockRecordAssetCountryCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// BrokerCountry mocks base method.
+func (m *MockRecord) BrokerCountry() int64 {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BrokerCountry")
+	ret0, _ := ret[0].(int64)
+	return ret0
+}
+
+// BrokerCountry indicates an expected call of BrokerCountry.
+func (mr *MockRecordMockRecorder) BrokerCountry() *MockRecordBrokerCountryCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BrokerCountry", reflect.TypeOf((*MockRecord)(nil).BrokerCountry))
+	return &MockRecordBrokerCountryCall{Call: call}
+}
+
+// MockRecordBrokerCountryCall wrap *gomock.Call
+type MockRecordBrokerCountryCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockRecordBrokerCountryCall) Return(arg0 int64) *MockRecordBrokerCountryCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockRecordBrokerCountryCall) Do(f func() int64) *MockRecordBrokerCountryCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockRecordBrokerCountryCall) DoAndReturn(f func() int64) *MockRecordBrokerCountryCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // Fees mocks base method.
 func (m *MockRecord) Fees() decimal.Decimal {
 	m.ctrl.T.Helper()

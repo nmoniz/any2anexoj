@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/biter777/countries"
 	"github.com/nmoniz/any2anexoj/internal"
 	"github.com/nmoniz/any2anexoj/internal/mocks"
 	"github.com/shopspring/decimal"
@@ -50,10 +51,12 @@ func TestBuildReport(t *testing.T) {
 
 func mockRecord(ctrl *gomock.Controller, price, quantity float64, side internal.Side, ts time.Time) *mocks.MockRecord {
 	rec := mocks.NewMockRecord(ctrl)
+	rec.EXPECT().Symbol().Return("TEST").AnyTimes()
+	rec.EXPECT().BrokerCountry().Return(int64(countries.PT)).AnyTimes()
+	rec.EXPECT().AssetCountry().Return(int64(countries.USA)).AnyTimes()
 	rec.EXPECT().Price().Return(decimal.NewFromFloat(price)).AnyTimes()
 	rec.EXPECT().Quantity().Return(decimal.NewFromFloat(quantity)).AnyTimes()
 	rec.EXPECT().Side().Return(side).AnyTimes()
-	rec.EXPECT().Symbol().Return("TEST").AnyTimes()
 	rec.EXPECT().Timestamp().Return(ts).AnyTimes()
 	rec.EXPECT().Fees().Return(decimal.Decimal{}).AnyTimes()
 	rec.EXPECT().Taxes().Return(decimal.Decimal{}).AnyTimes()
