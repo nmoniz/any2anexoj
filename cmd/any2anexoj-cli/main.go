@@ -51,7 +51,7 @@ func run(ctx context.Context, platform string) error {
 
 	reader := factory()
 
-	writer := internal.NewStdOutLogger()
+	writer := internal.NewTableWriter(os.Stdout)
 
 	eg.Go(func() error {
 		return internal.BuildReport(ctx, reader, writer)
@@ -62,7 +62,7 @@ func run(ctx context.Context, platform string) error {
 		return err
 	}
 
-	slog.Info("Finish processing statement")
+	writer.Render()
 
 	return nil
 }
