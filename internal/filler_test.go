@@ -18,7 +18,7 @@ func TestFillerQueue(t *testing.T) {
 	var rq FillerQueue
 
 	if rq.Len() != 0 {
-		t.Fatalf("zero value should have zero lenght")
+		t.Fatalf("zero value should have zero length")
 	}
 
 	_, ok := rq.Pop()
@@ -38,12 +38,12 @@ func TestFillerQueue(t *testing.T) {
 
 	rq.Push(NewFiller(newRecord()))
 	if rq.Len() != 1 {
-		t.Fatalf("pushing 1st record should result in lenght of 1")
+		t.Fatalf("pushing 1st record should result in length of 1")
 	}
 
 	rq.Push(NewFiller(newRecord()))
 	if rq.Len() != 2 {
-		t.Fatalf("pushing 2nd record should result in lenght of 2")
+		t.Fatalf("pushing 2nd record should result in length of 2")
 	}
 
 	peekFiller, ok := rq.Peek()
@@ -85,7 +85,7 @@ func TestFillerQueueNilReceiver(t *testing.T) {
 	var rq *FillerQueue
 
 	if rq.Len() > 0 {
-		t.Fatalf("nil receiver should have zero lenght")
+		t.Fatalf("nil receiver should have zero length")
 	}
 
 	_, ok := rq.Peek()

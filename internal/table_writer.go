@@ -27,8 +27,8 @@ func NewTableWriter(w io.Writer) *TableWriter {
 	t.SetAutoIndex(true)
 	t.SetStyle(table.StyleLight)
 
-	t.AppendHeader(table.Row{"", "", "Realisation", "Realisation", "Realisation", "Realisation", "Aquisition", "Aquisition", "Aquisition", "Aquisition", "", "", ""}, table.RowConfig{AutoMerge: true})
-	t.AppendHeader(table.Row{"Source Country", "Code", "Year", "Month", "Day", "Value", "Year", "Month", "Day", "Value", "Expenses", "Payed Taxes", "Counter Country"})
+	t.AppendHeader(table.Row{"", "", "Realisation", "Realisation", "Realisation", "Realisation", "Acquisition", "Acquisition", "Acquisition", "Acquisition", "", "", ""}, table.RowConfig{AutoMerge: true})
+	t.AppendHeader(table.Row{"Source Country", "Code", "Year", "Month", "Day", "Value", "Year", "Month", "Day", "Value", "Expenses", "Paid Taxes", "Counter Country"})
 
 	return &TableWriter{
 		table:  t,

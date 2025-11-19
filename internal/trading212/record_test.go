@@ -25,7 +25,7 @@ func TestRecordReader_ReadRecord(t *testing.T) {
 		},
 		{
 			name: "well-formed buy",
-			r:    bytes.NewBufferString(`Market buy,2025-07-03 10:44:29,SYM123456ABXY,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,7.3690000000,USD,1.17995999,,"EUR",15.25,"EUR",0.25,"EUR",0.02,"EUR",,`),
+			r:    bytes.NewBufferString(`Market buy,2025-07-03 10:44:29,SYM123456ABXY,ABXY,"Aspargus Broccoli",EOF987654321,2.4387014200,7.3690000000,USD,1.17995999,,"EUR",15.25,"EUR",0.25,"EUR",0.02,"EUR",,`),
 			want: Record{
 				symbol:    "SYM123456ABXY",
 				side:      internal.SideBuy,
@@ -38,7 +38,7 @@ func TestRecordReader_ReadRecord(t *testing.T) {
 		},
 		{
 			name: "well-formed sell",
-			r:    bytes.NewBufferString(`Market sell,2025-08-04 11:45:30,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",0.1,"EUR"`),
+			r:    bytes.NewBufferString(`Market sell,2025-08-04 11:45:30,IE000GA3D489,ABXY,"Aspargus Broccoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",0.1,"EUR"`),
 			want: Record{
 				symbol:    "IE000GA3D489",
 				side:      internal.SideSell,
@@ -51,42 +51,42 @@ func TestRecordReader_ReadRecord(t *testing.T) {
 		},
 		{
 			name:    "malformed side",
-			r:       bytes.NewBufferString(`Aljksdaf Balsjdkf,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
+			r:       bytes.NewBufferString(`Aljksdaf Balsjdkf,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Broccoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
 			wantErr: true,
 		},
 		{
 			name:    "empty side",
-			r:       bytes.NewBufferString(`,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,0x1234,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
+			r:       bytes.NewBufferString(`,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Broccoli",EOF987654321,0x1234,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
 			wantErr: true,
 		},
 		{
 			name:    "malformed qantity",
-			r:       bytes.NewBufferString(`Market sell,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,0x1234,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
+			r:       bytes.NewBufferString(`Market sell,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Broccoli",EOF987654321,0x1234,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
 			wantErr: true,
 		},
 		{
 			name:    "empty qantity",
-			r:       bytes.NewBufferString(`Market sell,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
+			r:       bytes.NewBufferString(`Market sell,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Broccoli",EOF987654321,,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
 			wantErr: true,
 		},
 		{
 			name:    "malformed price",
-			r:       bytes.NewBufferString(`Market sell,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,0b101010,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
+			r:       bytes.NewBufferString(`Market sell,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Broccoli",EOF987654321,2.4387014200,0b101010,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
 			wantErr: true,
 		},
 		{
 			name:    "empty price",
-			r:       bytes.NewBufferString(`Market sell,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
+			r:       bytes.NewBufferString(`Market sell,2025-08-04 11:45:39,IE000GA3D489,ABXY,"Aspargus Broccoli",EOF987654321,2.4387014200,,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
 			wantErr: true,
 		},
 		{
 			name:    "malformed timestamp",
-			r:       bytes.NewBufferString(`Market sell,2006-01-02T15:04:05Z07:00,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
+			r:       bytes.NewBufferString(`Market sell,2006-01-02T15:04:05Z07:00,IE000GA3D489,ABXY,"Aspargus Broccoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
 			wantErr: true,
 		},
 		{
 			name:    "empty timestamp",
-			r:       bytes.NewBufferString(`Market sell,,IE000GA3D489,ABXY,"Aspargus Brocoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
+			r:       bytes.NewBufferString(`Market sell,,IE000GA3D489,ABXY,"Aspargus Broccoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",,`),
 			wantErr: true,
 		},
 	}
