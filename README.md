@@ -1,5 +1,7 @@
 # any2anexoj
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/nmoniz/any2anexoj)](https://goreportcard.com/report/github.com/nmoniz/any2anexoj)
+
 ![Screenshot](https://i.ibb.co/TDDypq8X/Screenshot-2025-11-18-at-16-17-16.png)
 
 This tool converts the statements from known brokers and exchanges into a format compatible with section 9 from the Portuguese IRS form: [Mod_3_anexo_j](https://info.portaldasfinancas.gov.pt/pt/apoio_contribuinte/modelos_formularios/irs/Documents/Mod_3_anexo_J.pdf)

@@ -110,9 +110,9 @@ func (rr RecordReader) ReadRecord(_ context.Context) (internal.Record, error) {
 			return Record{}, fmt.Errorf("parse record timestamp: %w", err)
 		}
 
-		convertionFee, err := parseOptinalDecimal(raw[16])
+		conversionFee, err := parseOptinalDecimal(raw[16])
 		if err != nil {
-			return Record{}, fmt.Errorf("parse record convertion fee: %w", err)
+			return Record{}, fmt.Errorf("parse record conversion fee: %w", err)
 		}
 
 		stampDutyTax, err := parseOptinalDecimal(raw[14])
@@ -131,7 +131,7 @@ func (rr RecordReader) ReadRecord(_ context.Context) (internal.Record, error) {
 			quantity:  qant,
 			price:     price,
 			timestamp: ts,
-			fees:      convertionFee,
+			fees:      conversionFee,
 			taxes:     stampDutyTax.Add(frenchTxTax),
 		}, nil
 	}
