@@ -40,7 +40,8 @@ jobs:
       - name: Run Unit tests
         run: |
           go test -race -covermode atomic -coverprofile=coverage.out ./...
-          cat coverage.out | grep -v "_gen.go" > coverage.out
+          grep -v "_gen.go" coverage.out > coverage.filtered.out
+          mv coverage.filtered.out coverage.out
 
       - name: Install goveralls
         run: go install github.com/mattn/goveralls@v0.0.12
