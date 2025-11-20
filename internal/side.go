@@ -19,10 +19,12 @@ func (d Side) String() string {
 	}
 }
 
+// IsBuy returns true if the s == SideBuy
 func (d Side) IsBuy() bool {
 	return d == SideBuy
 }
 
+// IsSell returns true if the s == SideSell
 func (d Side) IsSell() bool {
 	return d == SideSell
 }
