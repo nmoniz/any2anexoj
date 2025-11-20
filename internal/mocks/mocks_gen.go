@@ -220,6 +220,44 @@ func (c *MockRecordFeesCall) DoAndReturn(f func() decimal.Decimal) *MockRecordFe
 	return c
 }
 
+// Nature mocks base method.
+func (m *MockRecord) Nature() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Nature")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Nature indicates an expected call of Nature.
+func (mr *MockRecordMockRecorder) Nature() *MockRecordNatureCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Nature", reflect.TypeOf((*MockRecord)(nil).Nature))
+	return &MockRecordNatureCall{Call: call}
+}
+
+// MockRecordNatureCall wrap *gomock.Call
+type MockRecordNatureCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockRecordNatureCall) Return(arg0 string) *MockRecordNatureCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockRecordNatureCall) Do(f func() string) *MockRecordNatureCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockRecordNatureCall) DoAndReturn(f func() string) *MockRecordNatureCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // Price mocks base method.
 func (m *MockRecord) Price() decimal.Decimal {
 	m.ctrl.T.Helper()

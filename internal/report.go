@@ -12,6 +12,7 @@ import (
 
 type Record interface {
 	Symbol() string
+	Nature() string
 	BrokerCountry() int64
 	AssetCountry() int64
 	Side() Side
@@ -29,6 +30,7 @@ type RecordReader interface {
 
 type ReportItem struct {
 	Symbol        string
+	Nature        string
 	BrokerCountry int64
 	AssetCountry  int64
 	BuyValue      decimal.Decimal
