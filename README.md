@@ -1,6 +1,7 @@
 # any2anexoj
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/nmoniz/any2anexoj)](https://goreportcard.com/report/github.com/nmoniz/any2anexoj)
+[![Coverage Status](https://coveralls.io/repos/github/nmoniz/any2anexoj/badge.svg?branch=coveralls-badge)](https://coveralls.io/github/nmoniz/any2anexoj?branch=coveralls-badge)
 
 ![Screenshot](https://i.ibb.co/TDDypq8X/Screenshot-2025-11-18-at-16-17-16.png)
 
