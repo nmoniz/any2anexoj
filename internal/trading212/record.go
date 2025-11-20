@@ -27,6 +27,10 @@ func (r Record) Symbol() string {
 	return r.symbol
 }
 
+func (r Record) Nature() string {
+	return "" // TODO: implement this
+}
+
 func (r Record) BrokerCountry() int64 {
 	return int64(Country)
 }
