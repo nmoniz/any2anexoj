@@ -6,7 +6,7 @@ import (
 	"github.com/nmoniz/any2anexoj/internal"
 )
 
-func TestNature_StringUnknow(t *testing.T) {
+func TestNature_String(t *testing.T) {
 	tests := []struct {
 		name   string
 		nature internal.Nature

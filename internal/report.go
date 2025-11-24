@@ -117,7 +117,7 @@ func processRecord(ctx context.Context, q *FillerQueue, rec Record, writer Repor
 				SellValue:     sellValue,
 				SellTimestamp: rec.Timestamp(),
 				Fees:          buy.Fees().Add(rec.Fees()),
-				Taxes:         buy.Taxes().Add(rec.Fees()),
+				Taxes:         buy.Taxes().Add(rec.Taxes()),
 				Nature:        buy.Nature(),
 			})
 			if err != nil {
