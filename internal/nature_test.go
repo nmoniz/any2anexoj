@@ -17,12 +17,12 @@ func TestNature_String(t *testing.T) {
 			want: "unknown",
 		},
 		{
-			name:   "return unknown",
+			name:   "return G01",
 			nature: internal.NatureG01,
 			want:   "G01",
 		},
 		{
-			name:   "return unknown",
+			name:   "return G20",
 			nature: internal.NatureG20,
 			want:   "G20",
 		},

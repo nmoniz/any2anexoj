@@ -33,7 +33,7 @@ func TestOpenFIGI_SecurityTypeByISIN(t *testing.T) {
 			want: "Common Stock",
 		},
 		{
-			name: "bas status code",
+			name: "bad status code",
 			client: NewTestClient(t, func(req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					Status:     http.StatusText(http.StatusTooManyRequests),

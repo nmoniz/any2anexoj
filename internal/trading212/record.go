@@ -121,17 +121,17 @@ func (rr RecordReader) ReadRecord(ctx context.Context) (internal.Record, error) 
 			return Record{}, fmt.Errorf("parse record timestamp: %w", err)
 		}
 
-		conversionFee, err := parseOptinalDecimal(raw[16])
+		conversionFee, err := parseOptionalDecimal(raw[16])
 		if err != nil {
 			return Record{}, fmt.Errorf("parse record conversion fee: %w", err)
 		}
 
-		stampDutyTax, err := parseOptinalDecimal(raw[14])
+		stampDutyTax, err := parseOptionalDecimal(raw[14])
 		if err != nil {
 			return Record{}, fmt.Errorf("parse record stamp duty tax: %w", err)
 		}
 
-		frenchTxTax, err := parseOptinalDecimal(raw[18])
+		frenchTxTax, err := parseOptionalDecimal(raw[18])
 		if err != nil {
 			return Record{}, fmt.Errorf("parse record french transaction tax: %w", err)
 		}
@@ -170,15 +170,15 @@ func figiNatureGetter(ctx context.Context, of *internal.OpenFIGI, isin string) f
 }
 
 // parseFloat attempts to parse a string using a standard precision and rounding mode.
-// Using this function helps avoid issues around converting values due to sligh parameter changes.
+// Using this function helps avoid issues around converting values due to minor parameter changes.
 func parseDecimal(s string) (decimal.Decimal, error) {
 	return decimal.NewFromString(s)
 }
 
-// parseOptinalDecimal behaves the same as parseDecimal but returns 0 when len(s) is 0 instead of
+// parseOptionalDecimal behaves the same as parseDecimal but returns 0 when len(s) is 0 instead of
 // error.
-// Using this function helps avoid issues around converting values due to sligh parameter changes.
-func parseOptinalDecimal(s string) (decimal.Decimal, error) {
+// Using this function helps avoid issues around converting values due to minor parameter changes.
+func parseOptionalDecimal(s string) (decimal.Decimal, error) {
 	if len(s) == 0 {
 		return decimal.Decimal{}, nil
 	}
