@@ -13,3 +13,10 @@ const (
 	// Resgates ou alienação de unidades de participação ou liquidação de fundos de investimento
 	NatureG20 Nature = "G20"
 )
+
+func (n Nature) String() string {
+	if n == "" {
+		return "unknown"
+	}
+	return string(n)
+}
