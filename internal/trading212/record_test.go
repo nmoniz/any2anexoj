@@ -27,9 +27,9 @@ func TestRecordReader_ReadRecord(t *testing.T) {
 		},
 		{
 			name: "well-formed buy",
-			r:    bytes.NewBufferString(`Market buy,2025-07-03 10:44:29,SYM123456ABXY,ABXY,"Aspargus Broccoli",EOF987654321,2.4387014200,7.3690000000,USD,1.17995999,,"EUR",15.25,"EUR",0.25,"EUR",0.02,"EUR",,`),
+			r:    bytes.NewBufferString(`Market buy,2025-07-03 10:44:29,XX1234567890,ABXY,"Aspargus Broccoli",EOF987654321,2.4387014200,7.3690000000,USD,1.17995999,,"EUR",15.25,"EUR",0.25,"EUR",0.02,"EUR",,`),
 			want: Record{
-				symbol:       "SYM123456ABXY",
+				symbol:       "XX1234567890",
 				side:         internal.SideBuy,
 				quantity:     ShouldParseDecimal(t, "2.4387014200"),
 				price:        ShouldParseDecimal(t, "7.3690000000"),
@@ -41,9 +41,9 @@ func TestRecordReader_ReadRecord(t *testing.T) {
 		},
 		{
 			name: "well-formed sell",
-			r:    bytes.NewBufferString(`Market sell,2025-08-04 11:45:30,IE000GA3D489,ABXY,"Aspargus Broccoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",0.1,"EUR"`),
+			r:    bytes.NewBufferString(`Market sell,2025-08-04 11:45:30,XX1234567890,ABXY,"Aspargus Broccoli",EOF987654321,2.4387014200,7.9999999999,USD,1.17995999,,"EUR",15.25,"EUR",,,0.02,"EUR",0.1,"EUR"`),
 			want: Record{
-				symbol:       "IE000GA3D489",
+				symbol:       "XX1234567890",
 				side:         internal.SideSell,
 				quantity:     ShouldParseDecimal(t, "2.4387014200"),
 				price:        ShouldParseDecimal(t, "7.9999999999"),
@@ -183,7 +183,7 @@ func Test_figiNatureGetter(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			getter := figiNatureGetter(t.Context(), tt.of, "IR123456789")
+			getter := figiNatureGetter(t.Context(), tt.of, "IR1234567890")
 			got := getter()
 			if tt.want != got {
 				t.Errorf("want %v but got %v", tt.want, got)
