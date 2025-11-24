@@ -6,19 +6,30 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/biter777/countries"
+	"golang.org/x/time/rate"
 )
 
+// OpenFIGI is a small adapter for the openfigi.com api
 type OpenFIGI struct {
-	client *http.Client
+	client         *http.Client
+	mappingLimiter *rate.Limiter
 }
 
 func NewOpenFIGI(c *http.Client) *OpenFIGI {
 	return &OpenFIGI{
-		client: c,
+		client:         c,
+		mappingLimiter: rate.NewLimiter(rate.Every(time.Minute), 25), // https://www.openfigi.com/api/documentation#rate-limits
 	}
 }
 
 func (of *OpenFIGI) SecurityTypeByISIN(ctx context.Context, isin string) (string, error) {
+	if len(isin) != 12 || countries.ByName(isin[:2]) == countries.Unknown {
+		return "", fmt.Errorf("invalid ISIN: %s", isin)
+	}
+
 	rawBody, err := json.Marshal([]mappingRequestBody{{
 		IDType:  "ID_ISIN",
 		IDValue: isin,
@@ -33,6 +44,11 @@ func (of *OpenFIGI) SecurityTypeByISIN(ctx context.Context, isin string) (string
 	}
 
 	req.Header.Add("Content-Type", "application/json")
+
+	err = of.mappingLimiter.Wait(ctx)
+	if err != nil {
+		return "", fmt.Errorf("wait for mapping request capacity: %w", err)
+	}
 
 	res, err := of.client.Do(req)
 	if err != nil {
