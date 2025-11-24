@@ -221,10 +221,10 @@ func (c *MockRecordFeesCall) DoAndReturn(f func() decimal.Decimal) *MockRecordFe
 }
 
 // Nature mocks base method.
-func (m *MockRecord) Nature() string {
+func (m *MockRecord) Nature() internal.Nature {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Nature")
-	ret0, _ := ret[0].(string)
+	ret0, _ := ret[0].(internal.Nature)
 	return ret0
 }
 
@@ -241,19 +241,19 @@ type MockRecordNatureCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockRecordNatureCall) Return(arg0 string) *MockRecordNatureCall {
+func (c *MockRecordNatureCall) Return(arg0 internal.Nature) *MockRecordNatureCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockRecordNatureCall) Do(f func() string) *MockRecordNatureCall {
+func (c *MockRecordNatureCall) Do(f func() internal.Nature) *MockRecordNatureCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockRecordNatureCall) DoAndReturn(f func() string) *MockRecordNatureCall {
+func (c *MockRecordNatureCall) DoAndReturn(f func() internal.Nature) *MockRecordNatureCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

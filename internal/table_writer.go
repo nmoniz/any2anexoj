@@ -42,7 +42,7 @@ func (tw *TableWriter) Write(_ context.Context, ri ReportItem) error {
 	tw.totalFees = tw.totalFees.Add(ri.Fees)
 	tw.totalTaxes = tw.totalTaxes.Add(ri.Taxes)
 
-	tw.table.AppendRow(table.Row{ri.AssetCountry, "G!!", ri.SellTimestamp.Year(), int(ri.SellTimestamp.Month()), ri.SellTimestamp.Day(), ri.SellValue, ri.BuyTimestamp.Year(), ri.BuyTimestamp.Month(), ri.BuyTimestamp.Day(), ri.BuyValue, ri.Fees, ri.Taxes, ri.BrokerCountry})
+	tw.table.AppendRow(table.Row{ri.AssetCountry, ri.Nature, ri.SellTimestamp.Year(), int(ri.SellTimestamp.Month()), ri.SellTimestamp.Day(), ri.SellValue, ri.BuyTimestamp.Year(), ri.BuyTimestamp.Month(), ri.BuyTimestamp.Day(), ri.BuyValue, ri.Fees, ri.Taxes, ri.BrokerCountry})
 
 	return nil
 }

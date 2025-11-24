@@ -5,7 +5,9 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"log/slog"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/biter777/countries"
@@ -68,11 +70,13 @@ func (r Record) Nature() internal.Nature {
 
 type RecordReader struct {
 	reader *csv.Reader
+	figi   *internal.OpenFIGI
 }
 
-func NewRecordReader(r io.Reader) *RecordReader {
+func NewRecordReader(r io.Reader, f *internal.OpenFIGI) *RecordReader {
 	return &RecordReader{
 		reader: csv.NewReader(r),
+		figi:   f,
 	}
 }
 
@@ -83,7 +87,7 @@ const (
 	LimitSell  = "limit sell"
 )
 
-func (rr RecordReader) ReadRecord(_ context.Context) (internal.Record, error) {
+func (rr RecordReader) ReadRecord(ctx context.Context) (internal.Record, error) {
 	for {
 		raw, err := rr.reader.Read()
 		if err != nil {
@@ -133,15 +137,36 @@ func (rr RecordReader) ReadRecord(_ context.Context) (internal.Record, error) {
 		}
 
 		return Record{
-			symbol:    raw[2],
-			side:      side,
-			quantity:  qant,
-			price:     price,
-			fees:      conversionFee,
-			taxes:     stampDutyTax.Add(frenchTxTax),
-			timestamp: ts,
+			symbol:       raw[2],
+			side:         side,
+			quantity:     qant,
+			price:        price,
+			fees:         conversionFee,
+			taxes:        stampDutyTax.Add(frenchTxTax),
+			timestamp:    ts,
+			natureGetter: figiNatureGetter(ctx, rr.figi, raw[2]),
 		}, nil
 	}
+}
+
+func figiNatureGetter(ctx context.Context, of *internal.OpenFIGI, isin string) func() internal.Nature {
+	return sync.OnceValue(func() internal.Nature {
+		secType, err := of.SecurityTypeByISIN(ctx, isin)
+		if err != nil {
+			slog.Error("failed to get security type by ISIN", slog.Any("err", err), slog.String("isin", isin))
+			return internal.NatureUnknown
+		}
+
+		switch secType {
+		case "Common Stock":
+			return internal.NatureG01
+		case "ETP":
+			return internal.NatureG20
+		default:
+			slog.Error("got unsupported security type for ISIN", slog.String("isin", isin), slog.String("securityType", secType))
+			return internal.NatureUnknown
+		}
+	})
 }
 
 // parseFloat attempts to parse a string using a standard precision and rounding mode.
