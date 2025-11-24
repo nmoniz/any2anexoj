@@ -15,20 +15,23 @@ import (
 
 type Record struct {
 	symbol    string
+	timestamp time.Time
 	side      internal.Side
 	quantity  decimal.Decimal
 	price     decimal.Decimal
-	timestamp time.Time
 	fees      decimal.Decimal
 	taxes     decimal.Decimal
+
+	// natureGetter allows us to defer the operation of figuring out the nature to only when/if needed.
+	natureGetter func() internal.Nature
 }
 
 func (r Record) Symbol() string {
 	return r.symbol
 }
 
-func (r Record) Nature() string {
-	return "" // TODO: implement this
+func (r Record) Timestamp() time.Time {
+	return r.timestamp
 }
 
 func (r Record) BrokerCountry() int64 {
@@ -51,16 +54,16 @@ func (r Record) Price() decimal.Decimal {
 	return r.price
 }
 
-func (r Record) Timestamp() time.Time {
-	return r.timestamp
-}
-
 func (r Record) Fees() decimal.Decimal {
 	return r.fees
 }
 
 func (r Record) Taxes() decimal.Decimal {
 	return r.taxes
+}
+
+func (r Record) Nature() internal.Nature {
+	return r.natureGetter()
 }
 
 type RecordReader struct {
@@ -134,9 +137,9 @@ func (rr RecordReader) ReadRecord(_ context.Context) (internal.Record, error) {
 			side:      side,
 			quantity:  qant,
 			price:     price,
-			timestamp: ts,
 			fees:      conversionFee,
 			taxes:     stampDutyTax.Add(frenchTxTax),
+			timestamp: ts,
 		}, nil
 	}
 }

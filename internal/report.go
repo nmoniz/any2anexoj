@@ -12,7 +12,7 @@ import (
 
 type Record interface {
 	Symbol() string
-	Nature() string
+	Nature() Nature
 	BrokerCountry() int64
 	AssetCountry() int64
 	Side() Side
