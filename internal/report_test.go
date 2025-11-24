@@ -60,6 +60,7 @@ func mockRecord(ctrl *gomock.Controller, price, quantity float64, side internal.
 	rec.EXPECT().Timestamp().Return(ts).AnyTimes()
 	rec.EXPECT().Fees().Return(decimal.Decimal{}).AnyTimes()
 	rec.EXPECT().Taxes().Return(decimal.Decimal{}).AnyTimes()
+	rec.EXPECT().Nature().Return(internal.NatureG01).AnyTimes()
 	return rec
 }
 

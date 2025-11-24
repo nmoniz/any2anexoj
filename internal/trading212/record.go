@@ -5,7 +5,9 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"log/slog"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/biter777/countries"
@@ -15,16 +17,23 @@ import (
 
 type Record struct {
 	symbol    string
+	timestamp time.Time
 	side      internal.Side
 	quantity  decimal.Decimal
 	price     decimal.Decimal
-	timestamp time.Time
 	fees      decimal.Decimal
 	taxes     decimal.Decimal
+
+	// natureGetter allows us to defer the operation of figuring out the nature to only when/if needed.
+	natureGetter func() internal.Nature
 }
 
 func (r Record) Symbol() string {
 	return r.symbol
+}
+
+func (r Record) Timestamp() time.Time {
+	return r.timestamp
 }
 
 func (r Record) BrokerCountry() int64 {
@@ -47,10 +56,6 @@ func (r Record) Price() decimal.Decimal {
 	return r.price
 }
 
-func (r Record) Timestamp() time.Time {
-	return r.timestamp
-}
-
 func (r Record) Fees() decimal.Decimal {
 	return r.fees
 }
@@ -59,13 +64,19 @@ func (r Record) Taxes() decimal.Decimal {
 	return r.taxes
 }
 
-type RecordReader struct {
-	reader *csv.Reader
+func (r Record) Nature() internal.Nature {
+	return r.natureGetter()
 }
 
-func NewRecordReader(r io.Reader) *RecordReader {
+type RecordReader struct {
+	reader *csv.Reader
+	figi   *internal.OpenFIGI
+}
+
+func NewRecordReader(r io.Reader, f *internal.OpenFIGI) *RecordReader {
 	return &RecordReader{
 		reader: csv.NewReader(r),
+		figi:   f,
 	}
 }
 
@@ -76,7 +87,7 @@ const (
 	LimitSell  = "limit sell"
 )
 
-func (rr RecordReader) ReadRecord(_ context.Context) (internal.Record, error) {
+func (rr RecordReader) ReadRecord(ctx context.Context) (internal.Record, error) {
 	for {
 		raw, err := rr.reader.Read()
 		if err != nil {
@@ -110,43 +121,64 @@ func (rr RecordReader) ReadRecord(_ context.Context) (internal.Record, error) {
 			return Record{}, fmt.Errorf("parse record timestamp: %w", err)
 		}
 
-		conversionFee, err := parseOptinalDecimal(raw[16])
+		conversionFee, err := parseOptionalDecimal(raw[16])
 		if err != nil {
 			return Record{}, fmt.Errorf("parse record conversion fee: %w", err)
 		}
 
-		stampDutyTax, err := parseOptinalDecimal(raw[14])
+		stampDutyTax, err := parseOptionalDecimal(raw[14])
 		if err != nil {
 			return Record{}, fmt.Errorf("parse record stamp duty tax: %w", err)
 		}
 
-		frenchTxTax, err := parseOptinalDecimal(raw[18])
+		frenchTxTax, err := parseOptionalDecimal(raw[18])
 		if err != nil {
 			return Record{}, fmt.Errorf("parse record french transaction tax: %w", err)
 		}
 
 		return Record{
-			symbol:    raw[2],
-			side:      side,
-			quantity:  qant,
-			price:     price,
-			timestamp: ts,
-			fees:      conversionFee,
-			taxes:     stampDutyTax.Add(frenchTxTax),
+			symbol:       raw[2],
+			side:         side,
+			quantity:     qant,
+			price:        price,
+			fees:         conversionFee,
+			taxes:        stampDutyTax.Add(frenchTxTax),
+			timestamp:    ts,
+			natureGetter: figiNatureGetter(ctx, rr.figi, raw[2]),
 		}, nil
 	}
 }
 
+func figiNatureGetter(ctx context.Context, of *internal.OpenFIGI, isin string) func() internal.Nature {
+	return sync.OnceValue(func() internal.Nature {
+		secType, err := of.SecurityTypeByISIN(ctx, isin)
+		if err != nil {
+			slog.Error("failed to get security type by ISIN", slog.Any("err", err), slog.String("isin", isin))
+			return internal.NatureUnknown
+		}
+
+		switch secType {
+		case "Common Stock":
+			return internal.NatureG01
+		case "ETP":
+			return internal.NatureG20
+		default:
+			slog.Error("got unsupported security type for ISIN", slog.String("isin", isin), slog.String("securityType", secType))
+			return internal.NatureUnknown
+		}
+	})
+}
+
 // parseFloat attempts to parse a string using a standard precision and rounding mode.
-// Using this function helps avoid issues around converting values due to sligh parameter changes.
+// Using this function helps avoid issues around converting values due to minor parameter changes.
 func parseDecimal(s string) (decimal.Decimal, error) {
 	return decimal.NewFromString(s)
 }
 
-// parseOptinalDecimal behaves the same as parseDecimal but returns 0 when len(s) is 0 instead of
+// parseOptionalDecimal behaves the same as parseDecimal but returns 0 when len(s) is 0 instead of
 // error.
-// Using this function helps avoid issues around converting values due to sligh parameter changes.
-func parseOptinalDecimal(s string) (decimal.Decimal, error) {
+// Using this function helps avoid issues around converting values due to minor parameter changes.
+func parseOptionalDecimal(s string) (decimal.Decimal, error) {
 	if len(s) == 0 {
 		return decimal.Decimal{}, nil
 	}

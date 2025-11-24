@@ -12,6 +12,7 @@ import (
 
 type Record interface {
 	Symbol() string
+	Nature() Nature
 	BrokerCountry() int64
 	AssetCountry() int64
 	Side() Side
@@ -29,6 +30,7 @@ type RecordReader interface {
 
 type ReportItem struct {
 	Symbol        string
+	Nature        Nature
 	BrokerCountry int64
 	AssetCountry  int64
 	BuyValue      decimal.Decimal
@@ -115,7 +117,8 @@ func processRecord(ctx context.Context, q *FillerQueue, rec Record, writer Repor
 				SellValue:     sellValue,
 				SellTimestamp: rec.Timestamp(),
 				Fees:          buy.Fees().Add(rec.Fees()),
-				Taxes:         buy.Taxes().Add(rec.Fees()),
+				Taxes:         buy.Taxes().Add(rec.Taxes()),
+				Nature:        buy.Nature(),
 			})
 			if err != nil {
 				return fmt.Errorf("write report item: %w", err)

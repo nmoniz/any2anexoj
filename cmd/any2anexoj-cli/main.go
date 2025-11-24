@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/nmoniz/any2anexoj/internal"
 	"github.com/nmoniz/any2anexoj/internal/trading212"
@@ -18,7 +20,9 @@ import (
 var platform = pflag.StringP("platform", "p", "trading212", "one of the supported platforms")
 
 var readerFactories = map[string]func() internal.RecordReader{
-	"trading212": func() internal.RecordReader { return trading212.NewRecordReader(os.Stdin) },
+	"trading212": func() internal.RecordReader {
+		return trading212.NewRecordReader(os.Stdin, internal.NewOpenFIGI(&http.Client{Timeout: 5 * time.Second}))
+	},
 }
 
 func main() {
