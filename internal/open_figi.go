@@ -6,28 +6,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 )
 
 type OpenFIGI struct {
-	client http.Client
-
-	cache map[string]string
+	client *http.Client
 }
 
-func NewOpenFIGI() *OpenFIGI {
+func NewOpenFIGI(c *http.Client) *OpenFIGI {
 	return &OpenFIGI{
-		client: http.Client{
-			Timeout: 5 * time.Second,
-		},
+		client: c,
 	}
 }
 
-func (of *OpenFIGI) Category(ctx context.Context, isin, ticker string) (string, error) {
-	rawBody, err := json.Marshal(mappingRequestBody{
-		IdType:  "ID_ISIN",
-		IdValue: isin,
-	})
+func (of *OpenFIGI) SecurityTypeByISIN(ctx context.Context, isin string) (string, error) {
+	rawBody, err := json.Marshal([]mappingRequestBody{{
+		IDType:  "ID_ISIN",
+		IDValue: isin,
+	}})
 	if err != nil {
 		return "", fmt.Errorf("marshal mapping request body: %w", err)
 	}
@@ -37,24 +32,46 @@ func (of *OpenFIGI) Category(ctx context.Context, isin, ticker string) (string, 
 		return "", fmt.Errorf("create mapping request: %w", err)
 	}
 
+	req.Header.Add("Content-Type", "application/json")
+
 	res, err := of.client.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("make mapping request: %w", err)
 	}
 	defer res.Body.Close()
 
-	var resBody mappingResponseBody
+	if res.StatusCode >= 400 {
+		return "", fmt.Errorf("bad mapping response status code: %s", res.Status)
+	}
+
+	var resBody []mappingResponseBody
 	err = json.NewDecoder(res.Body).Decode(&resBody)
 	if err != nil {
 		return "", fmt.Errorf("unmarshal response: %w", err)
 	}
 
-	return "", nil
+	if len(resBody) == 0 {
+		return "", fmt.Errorf("missing top-level elements")
+	}
+
+	if len(resBody[0].Data) == 0 {
+		return "", fmt.Errorf("missing data elements")
+	}
+
+	// It is not possible that an isin is assign to diferent security types, therefore we can assume
+	// all entries have the same securityType value.
+	return resBody[0].Data[0].SecurityType, nil
 }
 
 type mappingRequestBody struct {
-	IdType  string `json:"idType"`
-	IdValue string `json:"idValue"`
+	IDType  string `json:"idType"`
+	IDValue string `json:"idValue"`
 }
 
-type mappingResponseBody struct{}
+type mappingResponseBody struct {
+	Data []struct {
+		FIGI         string `json:"figi"`
+		SecurityType string `json:"securityType"`
+		Ticker       string `json:"ticker"`
+	} `json:"data"`
+}
