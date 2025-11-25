@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/biter777/countries"
@@ -16,16 +17,28 @@ import (
 type OpenFIGI struct {
 	client         *http.Client
 	mappingLimiter *rate.Limiter
+
+	mu                sync.RWMutex
+	securityTypeCache map[string]string
 }
 
 func NewOpenFIGI(c *http.Client) *OpenFIGI {
 	return &OpenFIGI{
 		client:         c,
 		mappingLimiter: rate.NewLimiter(rate.Every(time.Minute), 25), // https://www.openfigi.com/api/documentation#rate-limits
+
+		securityTypeCache: make(map[string]string),
 	}
 }
 
 func (of *OpenFIGI) SecurityTypeByISIN(ctx context.Context, isin string) (string, error) {
+	of.mu.RLock()
+	if secType, ok := of.securityTypeCache[isin]; ok {
+		of.mu.RUnlock()
+		return secType, nil
+	}
+	of.mu.RUnlock()
+
 	if len(isin) != 12 || countries.ByName(isin[:2]) == countries.Unknown {
 		return "", fmt.Errorf("invalid ISIN: %s", isin)
 	}
@@ -76,7 +89,13 @@ func (of *OpenFIGI) SecurityTypeByISIN(ctx context.Context, isin string) (string
 
 	// It is not possible that an isin is assign to diferent security types, therefore we can assume
 	// all entries have the same securityType value.
-	return resBody[0].Data[0].SecurityType, nil
+	secType := resBody[0].Data[0].SecurityType
+
+	of.mu.Lock()
+	of.securityTypeCache[isin] = secType
+	of.mu.Unlock()
+
+	return secType, nil
 }
 
 type mappingRequestBody struct {
