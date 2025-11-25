@@ -80,6 +80,18 @@ func TestOpenFIGI_SecurityTypeByISIN(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name: "empty securityType",
+			client: NewTestClient(t, func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					Status:     http.StatusText(http.StatusOK),
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewBufferString(`[{"data":[{"securityType":""}]}]`)),
+				}, nil
+			}),
+			isin:    "NL0000235190",
+			wantErr: true,
+		},
+		{
 			name: "client error",
 			client: NewTestClient(t, func(req *http.Request) (*http.Response, error) {
 				return nil, fmt.Errorf("boom")
