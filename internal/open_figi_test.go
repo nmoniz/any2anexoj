@@ -80,6 +80,18 @@ func TestOpenFIGI_SecurityTypeByISIN(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name: "empty securityType",
+			client: NewTestClient(t, func(req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					Status:     http.StatusText(http.StatusOK),
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewBufferString(`[{"data":[{"securityType":""}]}]`)),
+				}, nil
+			}),
+			isin:    "NL0000235190",
+			wantErr: true,
+		},
+		{
 			name: "client error",
 			client: NewTestClient(t, func(req *http.Request) (*http.Response, error) {
 				return nil, fmt.Errorf("boom")
@@ -115,6 +127,42 @@ func TestOpenFIGI_SecurityTypeByISIN(t *testing.T) {
 				t.Fatalf("want security type to be %s but got %s", tt.want, got)
 			}
 		})
+	}
+}
+
+func TestOpenFIGI_SecurityTypeByISIN_Cache(t *testing.T) {
+	var alreadyCalled bool
+	c := NewTestClient(t, func(req *http.Request) (*http.Response, error) {
+		if alreadyCalled {
+			t.Fatalf("want requests to be cached")
+		}
+
+		alreadyCalled = true
+		return &http.Response{
+			Status:     http.StatusText(http.StatusOK),
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewBufferString(`[{"data":[{"securityType":"Common Stock"}]}]`)),
+		}, nil
+	})
+
+	of := internal.NewOpenFIGI(c)
+
+	got, gotErr := of.SecurityTypeByISIN(t.Context(), "NL0000235190")
+	if gotErr != nil {
+		t.Fatalf("want 1st success call but got error: %v", gotErr)
+	}
+
+	if got != "Common Stock" {
+		t.Fatalf("want 1st securityType to be %q but got %q", "Common Stock", got)
+	}
+
+	got, gotErr = of.SecurityTypeByISIN(t.Context(), "NL0000235190")
+	if gotErr != nil {
+		t.Fatalf("want 2nd success call but got error: %v", gotErr)
+	}
+
+	if got != "Common Stock" {
+		t.Fatalf("want 2nd securityType to be %q but got %q", "Common Stock", got)
 	}
 }
 

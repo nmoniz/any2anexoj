@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/biter777/countries"
@@ -16,16 +17,41 @@ import (
 type OpenFIGI struct {
 	client         *http.Client
 	mappingLimiter *rate.Limiter
+
+	mu sync.RWMutex
+	// TODO: there's no eviction policy at the moment as this is only used by short-lived application
+	// which processes a relatively small amount of records. We need to consider using an external
+	// cache lib (like golang-lru or go-cache) if this becomes a problem or implement this ourselves.
+	securityTypeCache map[string]string
 }
 
 func NewOpenFIGI(c *http.Client) *OpenFIGI {
 	return &OpenFIGI{
 		client:         c,
 		mappingLimiter: rate.NewLimiter(rate.Every(time.Minute), 25), // https://www.openfigi.com/api/documentation#rate-limits
+
+		securityTypeCache: make(map[string]string),
 	}
 }
 
 func (of *OpenFIGI) SecurityTypeByISIN(ctx context.Context, isin string) (string, error) {
+	of.mu.RLock()
+	if secType, ok := of.securityTypeCache[isin]; ok {
+		of.mu.RUnlock()
+		return secType, nil
+	}
+	of.mu.RUnlock()
+
+	of.mu.Lock()
+	defer of.mu.Unlock()
+
+	// we check again because there could be more than one concurrent cache miss and we want only one
+	// of them to result in an actual request. When the first one releases the lock the following
+	// reads will hit the cache.
+	if secType, ok := of.securityTypeCache[isin]; ok {
+		return secType, nil
+	}
+
 	if len(isin) != 12 || countries.ByName(isin[:2]) == countries.Unknown {
 		return "", fmt.Errorf("invalid ISIN: %s", isin)
 	}
@@ -76,7 +102,14 @@ func (of *OpenFIGI) SecurityTypeByISIN(ctx context.Context, isin string) (string
 
 	// It is not possible that an isin is assign to diferent security types, therefore we can assume
 	// all entries have the same securityType value.
-	return resBody[0].Data[0].SecurityType, nil
+	secType := resBody[0].Data[0].SecurityType
+	if secType == "" {
+		return "", fmt.Errorf("empty security type returned for ISIN: %s", isin)
+	}
+
+	of.securityTypeCache[isin] = secType
+
+	return secType, nil
 }
 
 type mappingRequestBody struct {
