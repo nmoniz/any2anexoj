@@ -100,7 +100,7 @@ func (of *OpenFIGI) SecurityTypeByISIN(ctx context.Context, isin string) (string
 		return "", fmt.Errorf("missing data elements")
 	}
 
-	// It is not possible that an isin is assign to diferent security types, therefore we can assume
+	// It is not possible that an isin is assign to different security types, therefore we can assume
 	// all entries have the same securityType value.
 	secType := resBody[0].Data[0].SecurityType
 	if secType == "" {
