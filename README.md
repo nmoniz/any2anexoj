@@ -1,7 +1,7 @@
 # any2anexoj
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/nmoniz/any2anexoj)](https://goreportcard.com/report/github.com/nmoniz/any2anexoj)
-[![Coverage Status](https://coveralls.io/repos/github/nmoniz/any2anexoj/badge.svg?branch=coveralls-badge)](https://coveralls.io/github/nmoniz/any2anexoj?branch=coveralls-badge)
+[![Coverage Status](https://coveralls.io/repos/github/nmoniz/any2anexoj/badge.svg?branch=main)](https://coveralls.io/github/nmoniz/any2anexoj?branch=main)
 
 <p align="center">
   <img src="https://i.ibb.co/0yRtwq2C/0-FBA40-FD-D97-A-4-AFB-8618-49582-DB98-F3-C.png" alt="Screenshot" border="0">
