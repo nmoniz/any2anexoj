@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/nmoniz/any2anexoj/badge.svg?branch=coveralls-badge)](https://coveralls.io/github/nmoniz/any2anexoj?branch=coveralls-badge)
 
 <p align="center">
-  <img src="https://i.ibb.co/0yRtwq2C/0-FBA40-FD-D97-A-4-AFB-8618-49582-DB98-F3-C.png" alt="Screenshot" with="600" border="0">
+  <img src="https://i.ibb.co/0yRtwq2C/0-FBA40-FD-D97-A-4-AFB-8618-49582-DB98-F3-C.png" alt="Screenshot" border="0">
 </p>
 
 This tool converts the statements from known brokers and exchanges into a format compatible with section 9 from the Portuguese IRS form: [Mod_3_anexo_j](https://info.portaldasfinancas.gov.pt/pt/apoio_contribuinte/modelos_formularios/irs/Documents/Mod_3_anexo_J.pdf)
