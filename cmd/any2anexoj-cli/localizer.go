@@ -4,6 +4,7 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
@@ -38,9 +39,14 @@ func NewLocalizer(lang string) (*Localizer, error) {
 }
 
 func (t Localizer) Translate(key string, count int, values map[string]any) string {
-	return t.MustLocalize(&i18n.LocalizeConfig{
+	txt, err := t.Localize(&i18n.LocalizeConfig{
 		MessageID:    key,
 		TemplateData: values,
 		PluralCount:  count,
 	})
+	if err != nil {
+		slog.Error("failed to translate message", slog.Any("err", err))
+		return "<ERROR>"
+	}
+	return txt
 }
