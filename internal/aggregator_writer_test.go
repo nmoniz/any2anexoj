@@ -211,7 +211,7 @@ func TestAggregatorWriter_Items(t *testing.T) {
 	aw := &internal.AggregatorWriter{}
 	ctx := context.Background()
 
-	for range 10 {
+	for range 5 {
 		item := internal.ReportItem{Symbol: "TEST"}
 		if err := aw.Write(ctx, item); err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -225,6 +225,17 @@ func TestAggregatorWriter_Items(t *testing.T) {
 
 	if count != 5 {
 		t.Errorf("expected for loop to stop at 5 items, got %d", count)
+	}
+
+	count = 0
+	for range aw.Iter() {
+		count++
+		if count == 3 {
+			break
+		}
+	}
+	if count != 3 {
+		t.Errorf("expected for loop to stop at 3 items, got %d", count)
 	}
 }
 
