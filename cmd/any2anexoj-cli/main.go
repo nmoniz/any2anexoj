@@ -55,7 +55,7 @@ func run(ctx context.Context, platform string) error {
 
 	reader := factory()
 
-	writer := internal.NewTableWriter(os.Stdout)
+	writer := internal.NewAggregatorWriter()
 
 	eg.Go(func() error {
 		return internal.BuildReport(ctx, reader, writer)
@@ -66,7 +66,9 @@ func run(ctx context.Context, platform string) error {
 		return err
 	}
 
-	writer.Render()
+	printer := NewPrettyPrinter(os.Stdout)
+
+	printer.Render(writer)
 
 	return nil
 }
