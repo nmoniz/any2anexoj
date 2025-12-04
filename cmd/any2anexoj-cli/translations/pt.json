@@ -1,0 +1,46 @@
+{
+  "realization": {
+    "one": "Realização",
+    "other": "Realizações"
+  },
+  "acquisition": {
+    "one": "Aquisição",
+    "other": "Aquisições"
+  },
+  "source_country": {
+    "one": "País da fonte",
+    "other": "Países da fonte"
+  },
+  "counter_country": {
+    "one": "País da contraparte",
+    "other": "Países da contraparte"
+  },
+  "year": {
+    "one": "Ano",
+    "other": "Anos"
+  },
+  "month": {
+    "one": "Mês",
+    "other": "Meses"
+  },
+  "day": {
+    "one": "Dia",
+    "other": "Dias"
+  },
+  "value": {
+    "one": "Valor",
+    "other": "Valores"
+  },
+  "code": {
+    "one": "Código",
+    "other": "Códigos"
+  },
+  "expenses": {
+    "one": "Despesa e encargo",
+    "other": "Despesas e encargos"
+  },
+  "foreign_tax_paid": {
+    "one": "Imposto pago no estrangeiro",
+    "other": "Impostos pagos no estrangeiro"
+  }
+}
