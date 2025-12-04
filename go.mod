@@ -14,10 +14,11 @@ require (
 
 require (
 	github.com/mattn/go-runewidth v0.0.16 // indirect
+	github.com/nicksnyder/go-i18n/v2 v2.6.0
 	github.com/rivo/uniseg v0.4.7 // indirect
 	golang.org/x/mod v0.27.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
 	golang.org/x/tools v0.36.0 // indirect
 )
 

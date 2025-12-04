@@ -13,16 +13,21 @@ import (
 // PrettyPrinter writes a simple, human readable, table row to the provided io.Writer for each
 // ReportItem received.
 type PrettyPrinter struct {
-	table  table.Writer
-	output io.Writer
+	table      table.Writer
+	output     io.Writer
+	translator Translator
 }
 
-func NewPrettyPrinter(w io.Writer) *PrettyPrinter {
-	t := table.NewWriter()
-	t.SetOutputMirror(w)
-	t.SetAutoIndex(true)
-	t.SetStyle(table.StyleLight)
-	t.SetColumnConfigs([]table.ColumnConfig{
+type Translator interface {
+	Translate(key string, count int, values map[string]any) string
+}
+
+func NewPrettyPrinter(w io.Writer, tr Translator) *PrettyPrinter {
+	tw := table.NewWriter()
+	tw.SetOutputMirror(w)
+	tw.SetAutoIndex(true)
+	tw.SetStyle(table.StyleLight)
+	tw.SetColumnConfigs([]table.ColumnConfig{
 		colCountry(1),
 		colOther(2),
 		colOther(3),
@@ -39,14 +44,27 @@ func NewPrettyPrinter(w io.Writer) *PrettyPrinter {
 	})
 
 	return &PrettyPrinter{
-		table:  t,
-		output: w,
+		table:      tw,
+		output:     w,
+		translator: tr,
 	}
 }
 
 func (pp *PrettyPrinter) Render(aw *internal.AggregatorWriter) {
-	pp.table.AppendHeader(table.Row{"", "", "Realisation", "Realisation", "Realisation", "Realisation", "Acquisition", "Acquisition", "Acquisition", "Acquisition", "", "", ""}, table.RowConfig{AutoMerge: true})
-	pp.table.AppendHeader(table.Row{"Source Country", "Code", "Year", "Month", "Day", "Value", "Year", "Month", "Day", "Value", "Expenses", "Paid Taxes", "Counter Country"})
+	realizationTxt := pp.translator.Translate("realization", 1, nil)
+	acquisitionTxt := pp.translator.Translate("acquisition", 1, nil)
+	yearTxt := pp.translator.Translate("year", 1, nil)
+	monthTxt := pp.translator.Translate("month", 1, nil)
+	dayTxt := pp.translator.Translate("day", 1, nil)
+	valorTxt := pp.translator.Translate("value", 1, nil)
+
+	pp.table.AppendHeader(table.Row{"", "", realizationTxt, realizationTxt, realizationTxt, realizationTxt, acquisitionTxt, acquisitionTxt, acquisitionTxt, acquisitionTxt, "", "", ""}, table.RowConfig{AutoMerge: true})
+	pp.table.AppendHeader(table.Row{
+		pp.translator.Translate("source_country", 1, nil), pp.translator.Translate("code", 1, nil),
+		yearTxt, monthTxt, dayTxt, valorTxt,
+		yearTxt, monthTxt, dayTxt, valorTxt,
+		pp.translator.Translate("expenses", 2, nil), pp.translator.Translate("foreign_tax_paid", 1, nil), pp.translator.Translate("counter_country", 1, nil),
+	})
 
 	for ri := range aw.Iter() {
 		pp.table.AppendRow(table.Row{
@@ -68,6 +86,7 @@ func colEuros(n int) table.ColumnConfig {
 		AlignFooter: text.AlignRight,
 		AlignHeader: text.AlignRight,
 		WidthMin:    12,
+		WidthMax:    15,
 		Transformer: func(val any) string {
 			return fmt.Sprintf("%v €", val)
 		},
@@ -83,6 +102,7 @@ func colOther(n int) table.ColumnConfig {
 		Align:       text.AlignLeft,
 		AlignFooter: text.AlignLeft,
 		AlignHeader: text.AlignLeft,
+		WidthMax:    12,
 	}
 }
 
